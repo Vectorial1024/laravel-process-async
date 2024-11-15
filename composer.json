@@ -1,0 +1,17 @@
+{
+    "name": "vectorial1024/laravel-process-async",
+    "description": "Utilize Laravel Process to run PHP code asynchronously.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Vectorial1024\\LaravelProcessAsync\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Vectorial1024"
+        }
+    ],
+    "require": {}
+}
