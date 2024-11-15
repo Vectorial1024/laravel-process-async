@@ -21,7 +21,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Vectorial1024\\LaravelBackgroundAsync\\Tests\\": "tests/"
+            "Vectorial1024\\LaravelProcessAsync\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -41,5 +41,12 @@
     },
     "scripts": {
         "test": "vendor/bin/phpunit tests"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Vectorial1024\\LaravelProcessAsync\\BackgroundAsyncServiceProvider"
+            ]
+        }
     }
 }
