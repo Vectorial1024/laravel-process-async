@@ -12,7 +12,7 @@ use Laravel\SerializableClosure\SerializableClosure;
 class AsyncTask
 {
     /**
-     * The back to be executed in the background.
+     * The task to be executed in the background.
      * @var SerializableClosure|AsyncTaskInterface
      */
     private SerializableClosure|AsyncTaskInterface $theTask;
