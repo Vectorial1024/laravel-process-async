@@ -24,4 +24,19 @@ class AsyncTaskTest extends BaseTestCase
 
         unlink($testFileName);
     }
+    
+    public function testCanRunInterface()
+    {
+        // tests that our AsyncTask can run extending interfaces correctly.
+        $testFileName = $this->getStoragePath("testClosure.txt");
+        $message = "Hello world!";
+        $dummyTask = new DummyAsyncTask($message, $testFileName);
+        $task = new AsyncTask($dummyTask);
+        $task->run();
+
+        $this->assertFileExists($testFileName);
+        $this->assertStringEqualsFile($testFileName, $message);
+
+        unlink($testFileName);
+    }
 }
