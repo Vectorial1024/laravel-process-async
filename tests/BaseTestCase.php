@@ -20,6 +20,18 @@ class BaseTestCase extends TestCase
 
     // ---
 
+    /**
+     * Returns the path for mocking the Laravel storage path.
+     * @param string $fileName
+     * @return string
+     */
+    protected function getStoragePath(string $fileName): string
+    {
+        return dirname(__FILE__, 2) . "/storage/$fileName";
+    }
+
+    // ---
+
     public function call($method, $uri, $parameters = [], $files = [], $server = [], $content = null, $changeHistory = true)
     {
         // pass
