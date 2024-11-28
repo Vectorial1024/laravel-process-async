@@ -51,7 +51,7 @@ Latest results of cross-platform testing:
 |---|---|---|
 |Laravel 10 (PHP 8.1)|[![Build-U-L10-PHP80100][build-u-l10-php80100-image]][build-u-l10-php80100-url]|🛠️|
 |Laravel 11 (PHP 8.2)|[![Build-U-L11-PHP80200][build-u-l11-php80200-image]][build-u-l11-php80200-url]|🛠️|
-|Laravel 12 (PHP 8.3)|🛠️|🛠️|
+|Laravel 12 (PHP ???)|🛠️|🛠️|
 
 [packagist-url]: https://packagist.org/packages/vectorial1024/laravel-process-async
 [packagist-stats-url]: https://packagist.org/packages/vectorial1024/laravel-process-async/stats
