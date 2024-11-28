@@ -14,7 +14,11 @@ Utilize Laravel Processes to run PHP code asynchronously.
 - Silent execution: no built-in result-checking, check the results yourself (e.g. via database)
 
 ## Installation
-(WIP)
+via Composer:
+
+```sh
+composer require vectorial1024/laravel-process-async
+```
 
 ## Change log
 Please see `CHANGELOG.md`.
