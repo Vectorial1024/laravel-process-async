@@ -1,4 +1,10 @@
 # laravel-process-async
+[![Packagist License][packagist-license-image]][packagist-url]
+[![Packagist Version][packagist-version-image]][packagist-url]
+[![Packagist Downloads][packagist-downloads-image]][packagist-stats-url]
+[![PHP Dependency Version][php-version-image]][packagist-url]
+[![GitHub Repo Stars][github-stars-image]][github-repo-url]
+
 Utilize Laravel Processes to run PHP code asynchronously.
 
 ## What really is this?
@@ -39,3 +45,25 @@ PHPUnit via Composer script:
 ```sh
 composer run-script test
 ```
+
+Latest results of cross-platform testing:
+|Runtime|Ubuntu|Windows|
+|---|---|---|
+|Laravel 10 (PHP 8.1)|[![Build-U-L10-PHP80100][build-u-l10-php80100-image]][build-u-l10-php80100-url]|🛠️|
+|Laravel 11 (PHP 8.2)|[![Build-U-L11-PHP80200][build-u-l11-php80200-image]][build-u-l11-php80200-url]|🛠️|
+|Laravel 12 (PHP 8.3)|🛠️|🛠️|
+
+[packagist-url]: https://packagist.org/packages/vectorial1024/laravel-process-async
+[packagist-stats-url]: https://packagist.org/packages/vectorial1024/laravel-process-async/stats
+[github-repo-url]: https://github.com/Vectorial1024/laravel-process-async
+
+[build-u-l10-php80100-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/ubuntu_l10.yml
+[build-u-l10-php80100-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/ubuntu_l10.yml?style=plastic
+[build-u-l11-php80200-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/ubuntu_l10.yml
+[build-u-l11-php80200-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/ubuntu_l10.yml?style=plastic
+
+[packagist-license-image]: https://img.shields.io/packagist/l/vectorial1024/laravel-process-async?style=plastic
+[packagist-version-image]: https://img.shields.io/packagist/v/vectorial1024/laravel-process-async?style=plastic
+[packagist-downloads-image]: https://img.shields.io/packagist/dm/vectorial1024/laravel-process-async?style=plastic
+[php-version-image]: https://img.shields.io/packagist/dependency-v/vectorial1024/laravel-process-async/php?style=plastic&label=PHP
+[github-stars-image]: https://img.shields.io/github/stars/vectorial1024/laravel-process-async
