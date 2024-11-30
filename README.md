@@ -38,6 +38,9 @@ $task = new AsyncTask(function () use ($target) {
     fclose($fp);
 });
 
+// if you are using interfaces, then it is just like this:
+// $task = new AsyncTask(new WriteToFileTask($target, $message));
+
 // then start it.
 $task->start();
 
