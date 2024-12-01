@@ -66,8 +66,8 @@ Latest results of cross-platform testing:
 
 [build-u-l10-php80100-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/ubuntu_l10.yml
 [build-u-l10-php80100-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/ubuntu_l10.yml?style=plastic
-[build-u-l11-php80200-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/ubuntu_l10.yml
-[build-u-l11-php80200-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/ubuntu_l10.yml?style=plastic
+[build-u-l11-php80200-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/ubuntu_l11.yml
+[build-u-l11-php80200-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/ubuntu_l11.yml?style=plastic
 
 [build-w-l10-php80100-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/windows_l10.yml
 [build-w-l10-php80100-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/windows_l10.yml?style=plastic
