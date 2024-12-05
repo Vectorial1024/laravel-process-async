@@ -13,6 +13,15 @@ Utilize Laravel Processes to run PHP code asynchronously.
 - Restrictions from `laravel/serializable-closure` apply (see [their README](https://github.com/laravel/serializable-closure))
 - Hands-off execution: no built-in result-checking, check the results yourself (e.g. via database, file cache, etc)
 
+## Why should I want this?
+This library is very helpful for these cases:
+- You want to check the results later at your leisure 
+  - Or simply don't care about the results at all, just like [UDP](https://en.wikipedia.org/wiki/User_Datagram_Protocol)! It's up to you.
+- You want to start quick-and-dirty tasks right now (e.g. prefetching resources)
+- You want a minimal-setup async that auto-scales alongside your machine
+
+Of course, if you are considering extreme scaling (e.g. Redis queues in Laravel, multi-worker clusters, etc.) or guaranteed task execution, then this library is obviously not for you.
+
 ## Installation
 via Composer:
 
