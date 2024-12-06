@@ -3,6 +3,7 @@
 namespace Vectorial1024\LaravelProcessAsync;
 
 use Closure;
+use Illuminate\Process\InvokedProcess;
 use Illuminate\Support\Facades\Process;
 use Laravel\SerializableClosure\SerializableClosure;
 
@@ -16,6 +17,12 @@ class AsyncTask
      * @var SerializableClosure|AsyncTaskInterface
      */
     private SerializableClosure|AsyncTaskInterface $theTask;
+
+    /**
+     * The process that is actually running this task. Tasks that are not started will have null here.
+     * @var InvokedProcess|null
+     */
+    private InvokedProcess|null $runnerProcess = null;
 
     /**
      * Creates an AsyncTask instance.
@@ -63,7 +70,7 @@ class AsyncTask
     {
         // assume unix for now
         $serializedTask = $this->toBase64Serial();
-        Process::quietly()->start("php artisan async:run $serializedTask");
+        $this->theTask = Process::quietly()->start("php artisan async:run $serializedTask");
     }
 
     /**
@@ -106,5 +113,14 @@ class AsyncTask
             // bad data
             return null;
         }
+    }
+
+    /**
+     * Returns whether this task is currently running in the background.
+     * @return bool
+     */
+    public function isRunning(): bool
+    {
+        return $this->runnerProcess?->running() ?? false;
     }
 }
