@@ -15,10 +15,9 @@ Utilize Laravel Processes to run PHP code asynchronously.
 
 ## Why should I want this?
 This library is very helpful for these cases:
-- You want to check the results later at your leisure 
-  - Or simply don't care about the results at all, just like [UDP](https://en.wikipedia.org/wiki/User_Datagram_Protocol)! It's up to you.
-- You want to start quick-and-dirty tasks right now (e.g. prefetching resources)
-- You want a minimal-setup async that auto-scales alongside your machine
+- You want a minimal-setup async for easy vertical scaling
+- You want to start quick-and-dirty async tasks right now (e.g. prefetching resources, pinging remote, etc.)
+  - Best is if your task only has very few lines of code
 
 Of course, if you are considering extreme scaling (e.g. Redis queues in Laravel, multi-worker clusters, etc.) or guaranteed task execution, then this library is obviously not for you.
 
