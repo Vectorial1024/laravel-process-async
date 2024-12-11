@@ -114,13 +114,4 @@ class AsyncTask
             return null;
         }
     }
-
-    /**
-     * Returns whether this task is currently running in the background.
-     * @return bool
-     */
-    public function isRunning(): bool
-    {
-        return $this->runnerProcess?->running() ?? false;
-    }
 }
