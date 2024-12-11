@@ -61,7 +61,7 @@ PHPUnit via Composer script:
 composer run-script test
 ```
 
-Latest results of cross-platform testing:
+Latest results of cross-platform core testing:
 |Runtime|Ubuntu|Windows|
 |---|---|---|
 |Laravel 10 (PHP 8.1)|[![Build-U-L10-PHP80100][build-u-l10-php80100-image]][build-u-l10-php80100-url]|[![Build-W-L10-PHP80100][build-w-l10-php80100-image]][build-u-l10-php80100-url]|
