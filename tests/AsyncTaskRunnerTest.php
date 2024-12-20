@@ -2,8 +2,8 @@
 
 namespace Vectorial1024\LaravelProcessAsync\Tests;
 
-use Artisan;
 use Exception;
+use Illuminate\Support\Facades\Artisan;
 use stdClass;
 use Vectorial1024\LaravelProcessAsync\AsyncTask;
 use Vectorial1024\LaravelProcessAsync\AsyncTaskRunnerCommand;
