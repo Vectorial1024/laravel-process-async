@@ -70,7 +70,7 @@ class AsyncTask
     {
         // assume unix for now
         $serializedTask = $this->toBase64Serial();
-        $this->theTask = Process::quietly()->start("php artisan async:run $serializedTask");
+        $this->runnerProcess = Process::quietly()->start("php artisan async:run $serializedTask");
     }
 
     /**
