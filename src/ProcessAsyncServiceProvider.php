@@ -4,7 +4,7 @@ namespace Vectorial1024\LaravelProcessAsync;
 
 use Illuminate\Support\ServiceProvider;
 
-class BackgroundAsyncServiceProvider extends ServiceProvider
+class ProcessAsyncServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
