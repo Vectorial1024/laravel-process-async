@@ -69,7 +69,7 @@ Latest cross-platform testing results:
 |Laravel 12 (PHP ???)|🛠️|🛠️|
 
 \*Note: tests for these Laravel versions are skipped because they have old `artisan` file contents:
-- It is difficult to mock multi-version `artisan` files for different Laravel versions (see ![#6][https://github.com/Vectorial1024/laravel-process-async/issues/6]).
+- It is difficult to mock multi-version `artisan` files for different Laravel versions (see https://github.com/Vectorial1024/laravel-process-async/issues/6).
 - It is rare for the `artisan` file at Laravel to be updated
 - The actual behavior is expected to be the same.
 
