@@ -67,4 +67,22 @@ class AsyncTaskTest extends BaseTestCase
 
         unlink($testFileName);
     }
+
+    public function testAsyncBackground()
+    {
+        // tests that the async really runs in the background: it should not block the main thread
+        // test by starting a long sleep task and check the elapsed time in the main process
+        // note: we cannot test the "nohup" part because we can't really kill phpunit and start it up again on demand
+        $sleepDuration = 2; // how many seconds
+        $task = new AsyncTask(function () use ($sleepDuration) {
+            // just sleep long is ok
+            sleep($sleepDuration);
+        });
+        // time it
+        $timeBefore = microtime(true);
+        $task->start();
+        $timeAfter = microtime(true);
+        $timeElapsed = $timeAfter - $timeBefore;
+        $this->assertLessThan($sleepDuration, $timeElapsed, "The async task probably did not start in the background because the time taken to start it was too long.");
+    }
 }
