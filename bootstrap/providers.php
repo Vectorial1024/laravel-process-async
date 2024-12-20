@@ -3,5 +3,5 @@
 // only for testing, to support the artisan mock
 
 return [
-    Vectorial1024\LaravelProcessAsync\BackgroundAsyncServiceProvider::class,
+    Vectorial1024\LaravelProcessAsync\ProcessAsyncServiceProvider::class,
 ];

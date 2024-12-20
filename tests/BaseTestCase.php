@@ -14,7 +14,7 @@ class BaseTestCase extends TestCase
     {
         // load required package providers for our library to work during testing
         return [
-            \Vectorial1024\LaravelProcessAsync\BackgroundAsyncServiceProvider::class
+            \Vectorial1024\LaravelProcessAsync\ProcessAsyncServiceProvider::class
         ];
     }
 
