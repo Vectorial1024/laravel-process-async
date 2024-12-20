@@ -21,6 +21,10 @@ This library is very helpful for these cases:
 
 Of course, if you are considering extreme scaling (e.g. Redis queues in Laravel, multi-worker clusters, etc.) or guaranteed task execution, then this library is obviously not for you.
 
+## Any usage tips that I should know?
+Some tips for using this library in the best way:
+- None at the moment; we will let you know!
+
 ## Installation
 via Composer:
 
