@@ -63,7 +63,7 @@ class AsyncTask
     }
 
     /**
-     * Starts this AsyncTask immediately in the background.
+     * Starts this AsyncTask immediately in the background. A runner will then run this AsyncTask.
      * @return void
      */
     public function start(): void
