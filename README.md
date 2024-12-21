@@ -69,7 +69,7 @@ Latest cross-platform testing results:
 |Runtime|MacOS|Ubuntu|Windows|
 |---|---|---|---|
 |Laravel 10 (PHP 8.1)|skipped*|skipped*|skipped*|
-|Laravel 11 (PHP 8.2)|[![Build-M-L11-PHP80200][build-m-l11-php80200-image]][build-m-l11-php80200-url]|[![Build-U-L11-PHP80200][build-u-l11-php80200-image]][build-u-l11-php80200-url]|[![Build-W-L11-PHP80200][build-w-l11-php80200-image]][build-w-l11-php80200-url]|
+|Laravel 11 (PHP 8.2)|[![Build-M-L11][build-m-l11-image]][build-m-l11-url]|[![Build-U-L11][build-u-l11-image]][build-u-l11-url]|[![Build-W-L11][build-w-l11-image]][build-w-l11-url]|
 |Laravel 12 (PHP ???)|🛠️|🛠️|🛠️|
 
 \*Note: tests for these Laravel versions are skipped because they have old `artisan` file contents:
@@ -81,14 +81,14 @@ Latest cross-platform testing results:
 [packagist-stats-url]: https://packagist.org/packages/vectorial1024/laravel-process-async/stats
 [github-repo-url]: https://github.com/Vectorial1024/laravel-process-async
 
-[build-m-l11-php80200-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/macos_l11.yml
-[build-m-l11-php80200-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/macos_l11.yml?style=plastic
+[build-m-l11-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/macos_l11.yml
+[build-m-l11-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/macos_l11.yml?style=plastic
 
-[build-u-l11-php80200-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/ubuntu_l11.yml
-[build-u-l11-php80200-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/ubuntu_l11.yml?style=plastic
+[build-u-l11-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/ubuntu_l11.yml
+[build-u-l11-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/ubuntu_l11.yml?style=plastic
 
-[build-w-l11-php80200-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/windows_l11.yml
-[build-w-l11-php80200-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/windows_l11.yml?style=plastic
+[build-w-l11-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/windows_l11.yml
+[build-w-l11-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/windows_l11.yml?style=plastic
 
 [packagist-license-image]: https://img.shields.io/packagist/l/vectorial1024/laravel-process-async?style=plastic
 [packagist-version-image]: https://img.shields.io/packagist/v/vectorial1024/laravel-process-async?style=plastic

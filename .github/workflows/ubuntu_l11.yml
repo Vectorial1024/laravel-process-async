@@ -12,10 +12,10 @@ permissions:
 jobs:
   build:
 
-    # ubuntu-latest has PHP 8.1
+    # no ubuntu runner has explicit PHP 8.2 support
     # see https://github.com/marketplace/actions/setup-php-action
     # specify PHP 8.2 to test Laravel 11
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
