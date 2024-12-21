@@ -61,12 +61,16 @@ PHPUnit via Composer script:
 composer run-script test
 ```
 
+<!---
+We also include MacOS on top of Ubuntu so that the devs (usually using Mac) can see for themselves it also works.
+--->
+
 Latest cross-platform testing results:
-|Runtime|Ubuntu|Windows|
-|---|---|---|
-|Laravel 10 (PHP 8.1)|skipped*|skipped*|
-|Laravel 11 (PHP 8.2)|[![Build-U-L11-PHP80200][build-u-l11-php80200-image]][build-u-l11-php80200-url]|[![Build-W-L11-PHP80200][build-w-l11-php80200-image]][build-w-l11-php80200-url]|
-|Laravel 12 (PHP ???)|🛠️|🛠️|
+|Runtime|MacOS|Ubuntu|Windows|
+|---|---|---|---|
+|Laravel 10 (PHP 8.1)|skipped*|skipped*|skipped*|
+|Laravel 11 (PHP 8.2)|[![Build-M-L11-PHP80200][build-m-l11-php80200-image]][build-m-l11-php80200-url]|[![Build-U-L11-PHP80200][build-u-l11-php80200-image]][build-u-l11-php80200-url]|[![Build-W-L11-PHP80200][build-w-l11-php80200-image]][build-w-l11-php80200-url]|
+|Laravel 12 (PHP ???)|🛠️|🛠️|🛠️|
 
 \*Note: tests for these Laravel versions are skipped because they have old `artisan` file contents:
 - It is difficult to mock multi-version `artisan` files for different Laravel versions (see https://github.com/Vectorial1024/laravel-process-async/issues/6).
@@ -76,6 +80,9 @@ Latest cross-platform testing results:
 [packagist-url]: https://packagist.org/packages/vectorial1024/laravel-process-async
 [packagist-stats-url]: https://packagist.org/packages/vectorial1024/laravel-process-async/stats
 [github-repo-url]: https://github.com/Vectorial1024/laravel-process-async
+
+[build-m-l11-php80200-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/macos_l11.yml
+[build-m-l11-php80200-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/macos_l11.yml?style=plastic
 
 [build-u-l11-php80200-url]: https://github.com/Vectorial1024/laravel-process-async/actions/workflows/ubuntu_l11.yml
 [build-u-l11-php80200-image]: https://img.shields.io/github/actions/workflow/status/Vectorial1024/laravel-process-async/ubuntu_l11.yml?style=plastic
