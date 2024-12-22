@@ -18,6 +18,8 @@ This library is very helpful for these cases:
 - You want a minimal-setup async for easy vertical scaling
 - You want to start quick-and-dirty async tasks right now (e.g. prefetching resources, pinging remote, etc.)
   - Best is if your task only has very few lines of code
+- Laravel 11 [Concurrency](https://laravel.com/docs/11.x/concurrency) is too limiting; e.g.:
+  - You want to do something else while waiting for results
 
 Of course, if you are considering extreme scaling (e.g. Redis queues in Laravel, multi-worker clusters, etc.) or guaranteed task execution, then this library is obviously not for you.
 
