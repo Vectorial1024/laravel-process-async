@@ -26,7 +26,7 @@ class AsyncTask
     private InvokedProcess|null $runnerProcess = null;
 
     /**
-     * The maximum time (in seconds) this task is allowed to run; analogus to PHP max_execution_time directive.
+     * The maximum real time (in seconds) this task is allowed to run.
      * @var int|null
      */
     private int|null $timeLimit = 30;
@@ -134,9 +134,9 @@ class AsyncTask
     }
 
     /**
-     * Returns the maximum time this task is allowed to run. Null indicates unlimited time.
+     * Returns the maximum real time this task is allowed to run. This also includes time spent on sleeping and waiting!
      * 
-     * Analogus to PHP max_execution_time directive.
+     * Null indicates unlimited time.
      * @return int|null The time limit in seconds.
      */
     public function getTimeLimit(): int|null
