@@ -10,7 +10,8 @@
         "process",
         "spawn",
         "task",
-        "job"
+        "job",
+        "concurrency"
     ],
     "type": "library",
     "license": "MIT",
