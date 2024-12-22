@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Process\InvokedProcess;
 use Illuminate\Support\Facades\Process;
 use Laravel\SerializableClosure\SerializableClosure;
+use loophp\phposinfo\OsInfo;
 
 /**
  * The common handler of an AsyncTask; this can be a closure (will be wrapped inside AsyncTask) or an interface instance.
@@ -63,14 +64,25 @@ class AsyncTask
     }
 
     /**
-     * Starts this AsyncTask immediately in the background.
+     * Starts this AsyncTask immediately in the background. A runner will then run this AsyncTask.
      * @return void
      */
     public function start(): void
     {
-        // assume unix for now
+        // prepare the runner command
         $serializedTask = $this->toBase64Serial();
-        $this->runnerProcess = Process::quietly()->start("php artisan async:run $serializedTask");
+        $baseCommand = "php artisan async:run $serializedTask";
+
+        // then, specific actions depending on the runtime OS
+        if (OsInfo::isWindows()) {
+            // basically, in windows, it is too tedioous to check whether we are in cmd or ps,
+            // but we require cmd (ps won't work here), so might as well force cmd like this
+            $this->runnerProcess = Process::quietly()->start("cmd /c start /b $baseCommand");
+            return;
+        }
+        // assume anything not windows to be unix
+        // unix use nohup
+        $this->runnerProcess = Process::quietly()->start("nohup $baseCommand");
     }
 
     /**
