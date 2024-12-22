@@ -30,6 +30,8 @@ via Composer:
 composer require vectorial1024/laravel-process-async
 ```
 
+This library supports Unix and Windows; see the Testing section for more details.
+
 ## Change log
 Please see `CHANGELOG.md`.
 
