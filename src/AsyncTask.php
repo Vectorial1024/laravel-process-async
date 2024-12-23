@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Process\InvokedProcess;
 use Illuminate\Support\Facades\Process;
 use Laravel\SerializableClosure\SerializableClosure;
+use LogicException;
 use loophp\phposinfo\OsInfo;
 
 /**
@@ -153,6 +154,12 @@ class AsyncTask
      */
     public function withTimeLimit(int $seconds): static
     {
+        if ($seconds == 0) {
+            throw new LogicException("AsyncTask time limit must be positive (hint: use withoutTimeLimit() for no time limits)");
+        }
+        if ($seconds < 0) {
+            throw new LogicException("AsyncTask time limit must be positive");
+        }
         $this->timeLimit = $seconds;
         return $this;
     }
