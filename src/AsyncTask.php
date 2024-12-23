@@ -143,4 +143,27 @@ class AsyncTask
     {
         return $this->timeLimit;
     }
+
+    /**
+     * Sets the maximum real time this task is allowed to run. Chainable.
+     * 
+     * When the task reaches the time limit, the relevant handler will be called.
+     * @param int $seconds The time limit in seconds.
+     * @return AsyncTask $this for chaining.
+     */
+    public function withTimeLimit(int $seconds): static
+    {
+        $this->timeLimit = $seconds;
+        return $this;
+    }
+
+    /**
+     * Sets this task to run forever with no time limit. Chainable.
+     * @return AsyncTask $this for chaining.
+     */
+    public function withoutTimeLimit(): static
+    {
+        $this->timeLimit = null;
+        return $this;
+    }
 }
