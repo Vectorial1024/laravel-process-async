@@ -2,6 +2,7 @@
 
 namespace Vectorial1024\LaravelProcessAsync\Tests;
 
+use LogicException;
 use Vectorial1024\LaravelProcessAsync\AsyncTask;
 
 class AsyncTaskTest extends BaseTestCase
@@ -40,6 +41,31 @@ class AsyncTaskTest extends BaseTestCase
         $this->assertStringEqualsFile($testFileName, $message);
 
         unlink($testFileName);
+    }
+
+    public function testConfigWithTimeLimit()
+    {
+        $task = new AsyncTask(fn() => null);
+
+        // test +ve
+        $timeLimit = random_int(1, 100);
+        $task->withTimeLimit($timeLimit);
+        $this->assertEquals($timeLimit, $task->getTimeLimit());
+
+        // test 0; 0 makes no sense here
+        $this->expectException(LogicException::class);
+        $task->withTimeLimit(0);
+
+        // test -ve; also makes no sense here
+        $this->expectException(LogicException::class);
+        $task->withTimeLimit(-1);
+    }
+
+    public function testConfigNoTimeLimit()
+    {
+        $task = new AsyncTask(fn() => null);
+        $task->withoutTimeLimit();
+        $this->assertNull($task->getTimeLimit());
     }
 
     // ---------

@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Process\InvokedProcess;
 use Illuminate\Support\Facades\Process;
 use Laravel\SerializableClosure\SerializableClosure;
+use LogicException;
 use loophp\phposinfo\OsInfo;
 
 /**
@@ -24,6 +25,12 @@ class AsyncTask
      * @var InvokedProcess|null
      */
     private InvokedProcess|null $runnerProcess = null;
+
+    /**
+     * The maximum real time (in seconds) this task is allowed to run.
+     * @var int|null
+     */
+    private int|null $timeLimit = 30;
 
     /**
      * Creates an AsyncTask instance.
@@ -48,6 +55,10 @@ class AsyncTask
     public function run(): void
     {
         // todo startup configs
+        if (OsInfo::isWindows()) {
+            // windows can just use PHP's time limit
+            set_time_limit($this->timeLimit);
+        }
 
         // then, execute the task itself
         if ($this->theTask instanceof SerializableClosure) {
@@ -77,6 +88,7 @@ class AsyncTask
         if (OsInfo::isWindows()) {
             // basically, in windows, it is too tedioous to check whether we are in cmd or ps,
             // but we require cmd (ps won't work here), so might as well force cmd like this
+            // windows has real max time limit
             $this->runnerProcess = Process::quietly()->start("cmd /c start /b $baseCommand");
             return;
         }
@@ -125,5 +137,45 @@ class AsyncTask
             // bad data
             return null;
         }
+    }
+
+    /**
+     * Returns the maximum real time this task is allowed to run. This also includes time spent on sleeping and waiting!
+     * 
+     * Null indicates unlimited time.
+     * @return int|null The time limit in seconds.
+     */
+    public function getTimeLimit(): int|null
+    {
+        return $this->timeLimit;
+    }
+
+    /**
+     * Sets the maximum real time this task is allowed to run. Chainable.
+     * 
+     * When the task reaches the time limit, the relevant handler will be called.
+     * @param int $seconds The time limit in seconds.
+     * @return AsyncTask $this for chaining.
+     */
+    public function withTimeLimit(int $seconds): static
+    {
+        if ($seconds == 0) {
+            throw new LogicException("AsyncTask time limit must be positive (hint: use withoutTimeLimit() for no time limits)");
+        }
+        if ($seconds < 0) {
+            throw new LogicException("AsyncTask time limit must be positive");
+        }
+        $this->timeLimit = $seconds;
+        return $this;
+    }
+
+    /**
+     * Sets this task to run forever with no time limit. Chainable.
+     * @return AsyncTask $this for chaining.
+     */
+    public function withoutTimeLimit(): static
+    {
+        $this->timeLimit = null;
+        return $this;
     }
 }
