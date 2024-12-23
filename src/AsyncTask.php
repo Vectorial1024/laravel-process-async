@@ -55,6 +55,10 @@ class AsyncTask
     public function run(): void
     {
         // todo startup configs
+        if (OsInfo::isWindows()) {
+            // windows can just use PHP's time limit
+            set_time_limit($this->timeLimit);
+        }
 
         // then, execute the task itself
         if ($this->theTask instanceof SerializableClosure) {
@@ -84,6 +88,7 @@ class AsyncTask
         if (OsInfo::isWindows()) {
             // basically, in windows, it is too tedioous to check whether we are in cmd or ps,
             // but we require cmd (ps won't work here), so might as well force cmd like this
+            // windows has real max time limit
             $this->runnerProcess = Process::quietly()->start("cmd /c start /b $baseCommand");
             return;
         }
