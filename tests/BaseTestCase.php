@@ -30,6 +30,19 @@ class BaseTestCase extends TestCase
         return dirname(__FILE__, 2) . "/storage/$fileName";
     }
 
+    /**
+     * Sleeps for some time.
+     * @param float $seconds The number of seconds.
+     * @return void
+     */
+    protected function sleep(float $seconds): void
+    {
+        $wholeSeconds = (int) $seconds;
+        $fractionalSeconds = $seconds - $wholeSeconds;
+        sleep($wholeSeconds);
+        usleep($fractionalSeconds * 1000000);
+    }
+
     // ---
 
     public function call($method, $uri, $parameters = [], $files = [], $server = [], $content = null, $changeHistory = true)
