@@ -119,16 +119,11 @@ class AsyncTask
             // do we really have timeout here?
             if (static::$hasGnuCoreUtils === null) {
                 // haven't checked before; check
-                $tmpOut = [];
-                if (!exec("command -v timeout || command -v gtimeout", $tmpOut)) {
-                    // can't even check this
-                    throw new RuntimeException("AsyncTask failed to check whether GNU coreutils is installed");
-                }
-                // extract details
-                $cmdName = $tmpOut[0] ?? null;
-                static::$hasGnuCoreUtils = $cmdName ? true : false;
+                $tmpOut = exec("command -v timeout || command -v gtimeout");
+                $cmdName = !empty($tmpOut) ? $tmpOut : null;
+                unset($tmpOut);
+                static::$hasGnuCoreUtils = $cmdName !== null;
                 static::$timeoutCmdName = $cmdName;
-                unset($cmdName);
             }
             if (static::$hasGnuCoreUtils === false) {
                 // can't do anything without GNU coreutils!
