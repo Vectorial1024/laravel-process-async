@@ -62,9 +62,10 @@ class BaseTestCase extends TestCase
      * Applicable only in Unix systems; Windows systems will get a vacuous successful assertion on this.
      * @return void
      */
-    protected function assertNoNohupFile(): void
+    protected function assertNoNohupFile(string $message = ''): void
     {
-        $this->assertFileDoesNotExist($this->getBasePath() . "/nohup.out");
+        $nohupFilePath = $this->getBasePath() . "/nohup.out";
+        $this->assertFileDoesNotExist($nohupFilePath, "The async task did not run silently since the nohup.out file can be found.");
     }
 
     // ---

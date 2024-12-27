@@ -3,6 +3,7 @@
 namespace Vectorial1024\LaravelProcessAsync\Tests;
 
 use LogicException;
+use RuntimeException;
 use Vectorial1024\LaravelProcessAsync\AsyncTask;
 
 class AsyncTaskTest extends BaseTestCase
@@ -111,5 +112,19 @@ class AsyncTaskTest extends BaseTestCase
         $timeAfter = microtime(true);
         $timeElapsed = $timeAfter - $timeBefore;
         $this->assertLessThan($sleepDuration, $timeElapsed, "The async task probably did not start in the background because the time taken to start it was too long.");
+    }
+
+    public function testAsyncSilence()
+    {
+        // test that the async runner is really silent: e.g. it should not generate any nohup.out files
+        // the intended way of using this library is to send all kinds of debug output to the Laravel logs
+        // alternatively, laravel will simply catch exceptions and send them to the laravel logs
+        $task = new AsyncTask(function () {
+            // randomly throw exception
+            throw new RuntimeException("random testing exception");
+        });
+        $task->start();
+        $this->sleep(1);
+        $this->assertNoNohupFile();
     }
 }

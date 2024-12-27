@@ -133,7 +133,7 @@ class AsyncTask
             }
             $timeoutClause = static::$timeoutCmdName . " {$this->timeLimit}";
         }
-        $this->runnerProcess = Process::quietly()->start("nohup $timeoutClause $baseCommand");
+        $this->runnerProcess = Process::quietly()->start("nohup $timeoutClause $baseCommand >/dev/null 2>&1");
     }
 
     /**
