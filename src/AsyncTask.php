@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Process;
 use Laravel\SerializableClosure\SerializableClosure;
 use LogicException;
 use loophp\phposinfo\OsInfo;
+use RuntimeException;
 
 /**
  * The common handler of an AsyncTask; this can be a closure (will be wrapped inside AsyncTask) or an interface instance.
@@ -31,6 +32,24 @@ class AsyncTask
      * @var int|null
      */
     private int|null $timeLimit = 30;
+
+    /**
+     * Indicates whether GNU coreutils is found in the system; in particular, we are looking for the timeout command inside coreutils.
+     * 
+     * If null, indicates we haven't checked this yet.
+     * 
+     * Always null in Windows since Windows-side does not require GNU coreutils.
+     * @var bool|null
+     */
+    private static bool|null $hasGnuCoreUtils = null;
+
+    /**
+     * The name of the found timeout command inside GNU coreutils.
+     * 
+     * It is known that older MacOS environments might have "gtimeout" instead of "timeout".
+     * @var bool|null
+     */
+    private static bool|null $timeoutCmdName = false;
 
     /**
      * Creates an AsyncTask instance.
@@ -97,7 +116,25 @@ class AsyncTask
         // check time limit settings
         $timeoutClause = "";
         if ($this->timeLimit > 0) {
-            $timeoutClause = "timeout {$this->timeLimit}";
+            // do we really have timeout here?
+            if (static::$hasGnuCoreUtils === null) {
+                // haven't checked before; check
+                $tmpOut = [];
+                if (!exec("command -v timeout || command -v gtimeout", $tmpOut)) {
+                    // can't even check this
+                    throw new RuntimeException("AsyncTask failed to check whether GNU coreutils is installed");
+                }
+                // extract details
+                $cmdName = $tmpOut[0] ?? null;
+                static::$hasGnuCoreUtils = $cmdName ? true : false;
+                static::$timeoutCmdName = $cmdName;
+                unset($cmdName);
+            }
+            if (static::$hasGnuCoreUtils === false) {
+                // can't do anything without GNU coreutils!
+                throw new RuntimeException("AsyncTask time limit requires GNU coreutils, but GNU coreutils was not installed");
+            }
+            $timeoutClause = static::$timeoutCmdName . " {$this->timeLimit}";
         }
         $this->runnerProcess = Process::quietly()->start("nohup $timeoutClause $baseCommand");
     }
