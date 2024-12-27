@@ -13,13 +13,17 @@ Utilize Laravel Processes to run PHP code asynchronously.
 - Restrictions from `laravel/serializable-closure` apply (see [their README](https://github.com/laravel/serializable-closure))
 - Hands-off execution: no built-in result-checking, check the results yourself (e.g. via database, file cache, etc)
 
+This library internally uses an Artisan command to run the async code, which is similar to Laravel 11 [Concurrency](https://laravel.com/docs/11.x/concurrency).
+
 ## Why should I want this?
 This library is very helpful for these cases:
-- You want a minimal-setup async for easy vertical scaling
+- You want a cross-platform minimal-setup async for easy vertical scaling
 - You want to start quick-and-dirty async tasks right now (e.g. prefetching resources, pinging remote, etc.)
   - Best is if your task only has very few lines of code
 - Laravel 11 [Concurrency](https://laravel.com/docs/11.x/concurrency) is too limiting; e.g.:
   - You want to do something else while waiting for results
+  - You want to conveniently limit the max (real) execution time of the concurrent tasks
+- And perhaps more!
 
 Of course, if you are considering extreme scaling (e.g. Redis queues in Laravel, multi-worker clusters, etc.) or guaranteed task execution, then this library is obviously not for you.
 
@@ -30,12 +34,13 @@ via Composer:
 composer require vectorial1024/laravel-process-async
 ```
 
-Additionally:
-
-- For Unix systems (e.g. MacOS, Ubuntu, ...), the following are also required:
-  - GNU Core Utilities (`coreutils`, most probably preinstalled already)
-
 This library supports Unix and Windows; see the Testing section for more details.
+
+### Extra requirements for Unix
+If you are on Unix, check that you also have the following:
+- GNU Core Utilities (`coreutils`)
+  - MacOS do `brew install coreutils`!
+  - Other Unix distros should check if `coreutils` is preinstalled
 
 ## Change log
 Please see `CHANGELOG.md`.
