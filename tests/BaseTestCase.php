@@ -39,8 +39,12 @@ class BaseTestCase extends TestCase
     {
         $wholeSeconds = (int) $seconds;
         $fractionalSeconds = $seconds - $wholeSeconds;
-        sleep($wholeSeconds);
-        usleep($fractionalSeconds * 1000000);
+        if ($wholeSeconds > 0) {
+            sleep($wholeSeconds);
+        }
+        if ($fractionalSeconds > 0) {
+            usleep($fractionalSeconds * 1000000);
+        }
     }
 
     // ---
