@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Vectorial1024\LaravelProcessAsync;
 
 use Closure;
@@ -47,9 +49,9 @@ class AsyncTask
      * The name of the found timeout command inside GNU coreutils.
      * 
      * It is known that older MacOS environments might have "gtimeout" instead of "timeout".
-     * @var bool|null
+     * @var string|null
      */
-    private static bool|null $timeoutCmdName = false;
+    private static string|null $timeoutCmdName = null;
 
     /**
      * Creates an AsyncTask instance.
