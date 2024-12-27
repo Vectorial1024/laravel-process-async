@@ -21,13 +21,22 @@ class BaseTestCase extends TestCase
     // ---
 
     /**
+     * Returns the base path of this project (i.e., the directory of composer.json).
+     * @return string
+     */
+    protected function getBasePath(): string
+    {
+        return dirname(__FILE__, 2);
+    }
+
+    /**
      * Returns the path for mocking the Laravel storage path.
      * @param string $fileName
      * @return string
      */
     protected function getStoragePath(string $fileName): string
     {
-        return dirname(__FILE__, 2) . "/storage/$fileName";
+        return $this->getBasePath() . "/storage/$fileName";
     }
 
     /**
@@ -45,6 +54,17 @@ class BaseTestCase extends TestCase
         if ($fractionalSeconds > 0) {
             usleep($fractionalSeconds * 1000000);
         }
+    }
+
+    /**
+     * Asserts that the nohup.out file is not found in our project while running CI/CD. This checks that we are truly silencing the output of the task runner.
+     * 
+     * Applicable only in Unix systems; Windows systems will get a vacuous successful assertion on this.
+     * @return void
+     */
+    protected function assertNoNohupFile(): void
+    {
+        $this->assertFileDoesNotExist($this->getBasePath() . "/nohup.out");
     }
 
     // ---

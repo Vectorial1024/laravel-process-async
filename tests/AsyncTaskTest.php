@@ -90,6 +90,7 @@ class AsyncTaskTest extends BaseTestCase
 
         $this->assertFileExists($testFileName, "The async task probably did not run because its output file cannot be found.");
         $this->assertStringEqualsFile($testFileName, $message);
+        $this->assertNoNohupFile();
 
         unlink($testFileName);
     }
