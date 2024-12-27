@@ -94,7 +94,12 @@ class AsyncTask
         }
         // assume anything not windows to be unix
         // unix use nohup
-        $this->runnerProcess = Process::quietly()->start("nohup $baseCommand");
+        // check time limit settings
+        $timeoutClause = "";
+        if ($this->timeLimit > 0) {
+            $timeoutClause = "timeout {$this->timeLimit}";
+        }
+        $this->runnerProcess = Process::quietly()->start("nohup $timeoutClause $baseCommand");
     }
 
     /**

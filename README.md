@@ -30,6 +30,11 @@ via Composer:
 composer require vectorial1024/laravel-process-async
 ```
 
+Additionally:
+
+- For Unix systems (e.g. MacOS, Ubuntu, ...), the following are also required:
+  - GNU Core Utilities (`coreutils`, most probably preinstalled already)
+
 This library supports Unix and Windows; see the Testing section for more details.
 
 ## Change log
