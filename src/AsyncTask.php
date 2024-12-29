@@ -79,6 +79,8 @@ class AsyncTask
         if (OsInfo::isWindows()) {
             // windows can just use PHP's time limit
             set_time_limit($this->timeLimit);
+            // then install a timeout detector
+            register_shutdown_function([$this, 'checkRuntimeTimeout']);
         }
 
         // then, execute the task itself
@@ -216,5 +218,23 @@ class AsyncTask
     {
         $this->timeLimit = null;
         return $this;
+    }
+
+    /**
+     * Checks whether the task timed out via the PHP runtime error, and if so, triggers the timeout handler.
+     * 
+     * This handles Windows timeouts.
+     * @return void
+     */
+    protected function checkRuntimeTimeout(): void
+    {
+        // runtime timeout triggers a PHP fatal error
+        $lastError = error_get_last();
+        if (str_contains($lastError['message'], "Maximum execution time")) {
+            // timeout!
+            if ($this->theTask instanceof AsyncTaskInterface) {
+                $this->theTask->handleTimeout();
+            }
+        }
     }
 }

@@ -21,4 +21,9 @@ class DummyAsyncTask implements AsyncTaskInterface
         fflush($fp);
         fclose($fp);
     }
+
+    public function handleTimeout(): void
+    {
+        // nothing for now
+    }
 }

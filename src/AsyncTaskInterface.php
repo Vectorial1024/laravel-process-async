@@ -18,4 +18,12 @@ interface AsyncTaskInterface
      * @return void
      */
     public function execute(): void;
+
+    /**
+     * Cleans up the task when the task runner has run out of time specified by its time limit.
+     * 
+     * Note: there is no need to call exit() again in this function.
+     * @return void
+     */
+    public function handleTimeout(): void;
 }
