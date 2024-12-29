@@ -230,11 +230,17 @@ class AsyncTask
     {
         // runtime timeout triggers a PHP fatal error
         $lastError = error_get_last();
-        if (str_contains($lastError['message'], "Maximum execution time")) {
-            // timeout!
-            if ($this->theTask instanceof AsyncTaskInterface) {
-                $this->theTask->handleTimeout();
-            }
+        if ($lastError === null) {
+            // no error; skip
+            return;
+        }
+        if (!str_contains($lastError['message'], "Maximum execution time")) {
+            // some other unrelated errors; skip
+            return;
+        }
+        // timeout!
+        if ($this->theTask instanceof AsyncTaskInterface) {
+            $this->theTask->handleTimeout();
         }
     }
 }
