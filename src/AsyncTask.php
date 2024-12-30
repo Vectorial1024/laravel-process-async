@@ -83,7 +83,7 @@ class AsyncTask
     {
         // todo startup configs
         // write down the LARAVEL_START constant value for future usage
-        $this->laravelStartVal = constant("LARAVEL_START");
+        $this->laravelStartVal = constant("LARAVEL_START") ?? null;
 
         // install a timeout detector
         // this single function checks all kinds of timeouts
@@ -257,10 +257,13 @@ class AsyncTask
 
         // external killing; could be normal Unix timeout SIG_TERM or manual Windows taskkill
         // Laravel Artisan very conveniently has a LARAVEL_START = microtime(true) to let us check time elapsed
-        $timeElapsed = microtime(true) - $this->laravelStartVal;
-        if ($timeElapsed > $this->timeLimit) {
-            // timeout!
-            $hasTimedOut = true;
+        if ($this->laravelStartVal !== null) {
+            // we know when we have started; this can be null when running some test cases
+            $timeElapsed = microtime(true) - $this->laravelStartVal;
+            if ($timeElapsed > $this->timeLimit) {
+                // timeout!
+                $hasTimedOut = true;
+            }
         }
 
         // runtime timeout triggers a PHP fatal error
