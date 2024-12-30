@@ -42,6 +42,12 @@ class AsyncTask
     private float|null $laravelStartVal = null;
 
     /**
+     * The string constant name for constant('LARAVEL_START'). Mainly to keep the code clean.
+     * @var string
+     */
+    private const LARAVEL_START = "LARAVEL_START";
+
+    /**
      * Indicates whether GNU coreutils is found in the system; in particular, we are looking for the timeout command inside coreutils.
      * 
      * If null, indicates we haven't checked this yet.
@@ -83,7 +89,7 @@ class AsyncTask
     {
         // todo startup configs
         // write down the LARAVEL_START constant value for future usage
-        $this->laravelStartVal = constant("LARAVEL_START") ?? null;
+        $this->laravelStartVal = defined(self::LARAVEL_START) ? constant("LARAVEL_START") : null;
 
         // install a timeout detector
         // this single function checks all kinds of timeouts
