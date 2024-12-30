@@ -36,6 +36,12 @@ class AsyncTask
     private int|null $timeLimit = 30;
 
     /**
+     * The value of constant("LARAVEL_START") for future usage. Apparently, constants are not available during shutdown functions.
+     * @var float|null
+     */
+    private float|null $laravelStartVal = null;
+
+    /**
      * Indicates whether GNU coreutils is found in the system; in particular, we are looking for the timeout command inside coreutils.
      * 
      * If null, indicates we haven't checked this yet.
@@ -76,6 +82,9 @@ class AsyncTask
     public function run(): void
     {
         // todo startup configs
+        // write down the LARAVEL_START constant value for future usage
+        $this->laravelStartVal = constant("LARAVEL_START");
+
         // install a timeout detector
         // this single function checks all kinds of timeouts
         register_shutdown_function([$this, 'checkTaskTimeout']);
@@ -248,7 +257,7 @@ class AsyncTask
 
         // external killing; could be normal Unix timeout SIG_TERM or manual Windows taskkill
         // Laravel Artisan very conveniently has a LARAVEL_START = microtime(true) to let us check time elapsed
-        $timeElapsed = microtime(true) - constant("LARAVEL_START");
+        $timeElapsed = microtime(true) - $this->laravelStartVal;
         if ($timeElapsed > $this->timeLimit) {
             // timeout!
             $hasTimedOut = true;
