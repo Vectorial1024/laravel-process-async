@@ -127,4 +127,20 @@ class AsyncTaskTest extends BaseTestCase
         $this->sleep(1);
         $this->assertNoNohupFile();
     }
+
+    public function testAsyncTimeout()
+    {
+        // test that we can trigger the async task timeout
+        $message = "timeout occured";
+        $textFilePath = $this->getStoragePath("testAsyncTimeout.txt");
+        $timeoutTask = new TestTimeoutNormalTask($message, $textFilePath);
+        $task = new AsyncTask($timeoutTask);
+        $task->withTimeLimit(1)->start();
+        // we wait for it to timeout
+        $this->sleep(2);
+        // should have timed out
+        $this->assertFileExists($textFilePath, "The async task probably did not trigger its timeout handler because its timeout output file is not found.");
+        $this->assertStringEqualsFile($textFilePath, $message);
+        $this->assertNoNohupFile();
+    }
 }
