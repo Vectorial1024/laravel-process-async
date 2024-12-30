@@ -76,11 +76,12 @@ class AsyncTask
     public function run(): void
     {
         // todo startup configs
+        // install a timeout detector
+        // this handles Windoes timeouts, but also Unix timeouts where PHP max_execution_time is set less than the task time limit
+        register_shutdown_function([$this, 'checkRuntimeTimeout']);
         if (OsInfo::isWindows()) {
             // windows can just use PHP's time limit
             set_time_limit($this->timeLimit);
-            // then install a timeout detector
-            register_shutdown_function([$this, 'checkRuntimeTimeout']);
         }
 
         // then, execute the task itself
