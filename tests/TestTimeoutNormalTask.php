@@ -2,7 +2,6 @@
 
 namespace Vectorial1024\LaravelProcessAsync\Tests;
 
-use Illuminate\Support\Facades\Log;
 use Vectorial1024\LaravelProcessAsync\AsyncTaskInterface;
 
 class TestTimeoutNormalTask implements AsyncTaskInterface
@@ -17,13 +16,12 @@ class TestTimeoutNormalTask implements AsyncTaskInterface
 
     public function execute(): void
     {
-        // pass
-        Log::info("Starting!");
+        // we have to sleep a bit to trigger the timeout
+        sleep(1);
     }
 
     public function handleTimeout(): void
     {
-        Log::info("Starting!");
         $fp = fopen($this->targetFilePath, "w");
         fwrite($fp, $this->message);
         fflush($fp);
