@@ -77,11 +77,16 @@ class AsyncTask
     {
         // todo startup configs
         // install a timeout detector
-        // this handles Windoes timeouts, but also Unix timeouts where PHP max_execution_time is set less than the task time limit
-        register_shutdown_function([$this, 'checkRuntimeTimeout']);
+        // this single function checks all kinds of timeouts
+        register_shutdown_function([$this, 'checkTaskTimeout']);
         if (OsInfo::isWindows()) {
             // windows can just use PHP's time limit
             set_time_limit($this->timeLimit);
+        } else {
+            // assume anything not Windows to be Unix
+            // we already set it to kill this task after the timeout, so we just need to install a listener
+            pcntl_async_signals(true);
+            pcntl_signal(SIGTERM, [$this, 'pcntlGracefulExit']);
         }
 
         // then, execute the task itself
@@ -221,22 +226,45 @@ class AsyncTask
         return $this;
     }
 
+    private function pcntlGracefulExit(): never
+    {
+        // just exit is ok
+        // exit asap so that our error checking inside shutdown functions can take palce outside of the usual max_execution_time limit
+        exit();
+    }
+
     /**
-     * Checks whether the task timed out via the PHP runtime error, and if so, triggers the timeout handler.
+     * Checks whether the task timed out, and if so, triggers the timeout handler.
+     * 
+     * This will check various kinds of timeouts.
      * 
      * This handles Windows timeouts.
      * @return void
      */
-    protected function checkRuntimeTimeout(): void
+    protected function checkTaskTimeout(): void
     {
-        // runtime timeout triggers a PHP fatal error
-        $lastError = error_get_last();
-        if ($lastError === null) {
-            // no error; skip
-            return;
+        // we perform a series of checks to see if this task has timed out
+        $hasTimedOut = false;
+
+        // external killing; could be normal Unix timeout SIG_TERM or manual Windows taskkill
+        // Laravel Artisan very conveniently has a LARAVEL_START = microtime(true) to let us check time elapsed
+        $timeElapsed = microtime(true) - constant("LARAVEL_START");
+        if ($timeElapsed > $this->timeLimit) {
+            // timeout!
+            $hasTimedOut = true;
         }
-        if (!str_contains($lastError['message'], "Maximum execution time")) {
-            // some other unrelated errors; skip
+
+        // runtime timeout triggers a PHP fatal error
+        // check this
+        $lastError = error_get_last();
+        if ($lastError !== null && str_contains($lastError['message'], "Maximum execution time")) {
+            // has error, and is timeout!
+            $hasTimedOut = true;
+        }
+
+        // all checks concluded
+        if (!$hasTimedOut) {
+            // not timeout-related
             return;
         }
         // timeout!
