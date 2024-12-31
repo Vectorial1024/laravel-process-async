@@ -48,14 +48,6 @@ class AsyncTask
     private const LARAVEL_START = "LARAVEL_START";
 
     /**
-     * The time epsilon that will be added to timeout checks to ensure we can correctly handle Unix timeouts.
-     * 
-     * This is a workaround to the undetectable but inevitable Unix PHP startup delay.
-     * @var float
-     */
-    private const TIME_EPSILON = 0.1;
-
-    /**
      * Indicates whether GNU coreutils is found in the system; in particular, we are looking for the timeout command inside coreutils.
      * 
      * If null, indicates we haven't checked this yet.
@@ -101,7 +93,7 @@ class AsyncTask
 
         // install a timeout detector
         // this single function checks all kinds of timeouts
-        register_shutdown_function([$this, 'checkTaskTimeout']);
+        register_shutdown_function([$this, 'shutdownCheckTaskTimeout']);
         if (OsInfo::isWindows()) {
             // windows can just use PHP's time limit
             set_time_limit($this->timeLimit);
@@ -257,45 +249,73 @@ class AsyncTask
     }
 
     /**
-     * Checks whether the task timed out, and if so, triggers the timeout handler.
+     * A shutdown function.
      * 
-     * This will check various kinds of timeouts.
-     * 
-     * This handles Windows timeouts.
+     * Upon shutdown, checks whether this is due to the task timing out, and if so, triggers the timeout handler.
      * @return void
      */
-    protected function checkTaskTimeout(): void
+    protected function shutdownCheckTaskTimeout(): void
     {
-        // we perform a series of checks to see if this task has timed out
-        $hasTimedOut = false;
-
-        // external killing; could be normal Unix timeout SIG_TERM or manual Windows taskkill
-        // Laravel Artisan very conveniently has a LARAVEL_START = microtime(true) to let us check time elapsed
-        if ($this->laravelStartVal !== null) {
-            // we know when we have started; this can be null when running some test cases
-            $timeElapsed = microtime(true) - $this->laravelStartVal;
-            if ($timeElapsed + self::TIME_EPSILON >= $this->timeLimit) {
-                // timeout!
-                $hasTimedOut = true;
-            }
-        }
-
-        // runtime timeout triggers a PHP fatal error
-        // check this
-        $lastError = error_get_last();
-        if ($lastError !== null && str_contains($lastError['message'], "Maximum execution time")) {
-            // has error, and is timeout!
-            $hasTimedOut = true;
-        }
-
-        // all checks concluded
-        if (!$hasTimedOut) {
-            // not timeout-related
+        if (!$this->hasTimedOut()) {
+            // shutdown due to other reasons; skip
             return;
         }
+        
         // timeout!
+        // trigger the timeout handler
         if ($this->theTask instanceof AsyncTaskInterface) {
             $this->theTask->handleTimeout();
         }
+    }
+
+    /**
+     * During shutdown, checks whether this shutdown satisfies the "task timed out shutdown" condition.
+     * @return bool True if this task is timed out according to our specifications.
+     */
+    private function hasTimedOut(): bool
+    {
+        // we perform a series of checks to see if this task has timed out
+
+        // runtime timeout triggers a PHP fatal error
+        // this can happen on Windows by our specification, or on Unix when the actual CLI PHP time limit is smaller than the time limit of this task
+        $lastError = error_get_last();
+        if ($lastError !== null) {
+            // has fatal error; is it our timeout error?
+            return str_contains($lastError['message'], "Maximum execution time");
+        }
+        unset($lastError);
+
+        // not a runtime timeout; one of the following:
+        // it ended within the time limit; or
+        // on Unix, it ran out of time so it is getting a SIGTERM from us; or
+        // it somehow ran out of time, and is being manually detected and killed
+        if ($this->laravelStartVal !== null) {
+            // this is very important; in some test cases, this is being run directly by PHPUnit, and so LARAVEL_START will be null
+            // in this case, we have no idea when this task has started running, so we cannot deduce any timeout statuses
+
+            // check LARAVEL_START with microtime
+            $timeElapsed = microtime(true) - $this->laravelStartVal;
+            if ($timeElapsed >= $this->timeLimit) {
+                // yes
+                return true;
+            }
+
+            // if we are on Unix, sometimes LARAVEL_START does not store an accurate task-start time due to slow PHP startup
+            // and so microtime LARAVEL_START cannot see the timeout
+            // then, we can still use the kernel's proc stats
+            // this method should be slower than the microtime method
+            if (OsInfo::isUnix()) {
+                // whoami
+                $selfPID = getmypid();
+                // get time elapsed in seconds
+                $tempOut = exec("ps -p $selfPID -o etimes=");
+                // this must exist (we are still running!), otherwise it indicates the kernel is broken and we can go grab a chicken dinner instead
+                $timeElapsed = (int) $tempOut;
+                return $timeElapsed >= $this->timeLimit;
+            }
+        }
+
+        // didn't see anything; assume is no
+        return false;
     }
 }
