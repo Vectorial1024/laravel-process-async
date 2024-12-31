@@ -244,7 +244,7 @@ class AsyncTask
     private function pcntlGracefulExit(): never
     {
         // just exit is ok
-        // exit asap so that our error checking inside shutdown functions can take palce outside of the usual max_execution_time limit
+        // exit asap so that our error checking inside shutdown functions can take place outside of the usual max_execution_time limit
         exit();
     }
 
