@@ -42,6 +42,16 @@ class AsyncTask
     private float|null $laravelStartVal = null;
 
     /**
+     * On Unix only. Indicates the process ID that can be used to track the "time elapsed" stat, which resolves to the following:
+     * - if the task was started under the `timeout` command, then the PID of said `timeout` command
+     * - else (i.e., started without time limit), the self PID
+     * 
+     * If not yet initialized or on Windows, then will be 0, which indicates an invalid PID.
+     * @var int
+     */
+    private int $timerProcID = 0;
+
+    /**
      * The string constant name for constant('LARAVEL_START'). Mainly to keep the code clean.
      * @var string
      */
@@ -102,6 +112,15 @@ class AsyncTask
             // we already set it to kill this task after the timeout, so we just need to install a listener
             pcntl_async_signals(true);
             pcntl_signal(SIGTERM, [$this, 'pcntlGracefulExit']);
+
+            // and we also need to see the command name of our parent, to correctly track time
+            $this->timerProcID = getmypid();
+            $parentPid = posix_getppid();
+            $parentCmd = exec("ps -p $parentPid -o comm=");
+            if ($parentCmd === "timeout" || $parentCmd === "gtimeout") {
+                // we should use the parent instead to time this task
+                $this->timerProcID = $parentPid;
+            }
         }
 
         // then, execute the task itself
@@ -303,15 +322,13 @@ class AsyncTask
                 return true;
             }
 
-            // if we are on Unix, sometimes LARAVEL_START does not store an accurate task-start time due to slow PHP startup
-            // and so microtime LARAVEL_START cannot see the timeout
-            // then, we can still use the kernel's proc stats
+            // if we are on Unix, and when we have set a task time limit, then the LARAVEL_START value is inaccurate
+            // because there will always be a small but significant delay between `timeout` start time and PHP start time.
+            // in this case, we will look at the pre-determined timer PID to ask about the actual elapsed time through the kernel's proc data
             // this method should be slower than the microtime method
             if (OsInfo::isUnix()) {
-                // whoami
-                $selfPID = getmypid();
                 // get time elapsed in seconds
-                $tempOut = exec("ps -p $selfPID -o etimes=");
+                $tempOut = exec("ps -p {$this->timerProcID} -o etimes=");
                 // this must exist (we are still running!), otherwise it indicates the kernel is broken and we can go grab a chicken dinner instead
                 $timeElapsed = (int) $tempOut;
                 fwrite(STDERR, "proc-stat elapsed $timeElapsed" . PHP_EOL);
