@@ -48,6 +48,14 @@ class AsyncTask
     private const LARAVEL_START = "LARAVEL_START";
 
     /**
+     * The time epsilon that will be added to timeout checks to ensure we can correctly handle Unix timeouts.
+     * 
+     * This is a workaround to the undetectable but inevitable Unix PHP startup delay.
+     * @var float
+     */
+    private const TIME_EPSILON = 0.1;
+
+    /**
      * Indicates whether GNU coreutils is found in the system; in particular, we are looking for the timeout command inside coreutils.
      * 
      * If null, indicates we haven't checked this yet.
@@ -266,7 +274,7 @@ class AsyncTask
         if ($this->laravelStartVal !== null) {
             // we know when we have started; this can be null when running some test cases
             $timeElapsed = microtime(true) - $this->laravelStartVal;
-            if ($timeElapsed >= $this->timeLimit) {
+            if ($timeElapsed + self::TIME_EPSILON >= $this->timeLimit) {
                 // timeout!
                 $hasTimedOut = true;
             }
