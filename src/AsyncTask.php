@@ -266,7 +266,7 @@ class AsyncTask
         if ($this->laravelStartVal !== null) {
             // we know when we have started; this can be null when running some test cases
             $timeElapsed = microtime(true) - $this->laravelStartVal;
-            if ($timeElapsed > $this->timeLimit) {
+            if ($timeElapsed >= $this->timeLimit) {
                 // timeout!
                 $hasTimedOut = true;
             }
