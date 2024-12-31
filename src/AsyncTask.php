@@ -281,6 +281,7 @@ class AsyncTask
         $lastError = error_get_last();
         if ($lastError !== null) {
             // has fatal error; is it our timeout error?
+            fwrite(STDERR, "error_get_last " . json_encode($lastError) . PHP_EOL);
             return str_contains($lastError['message'], "Maximum execution time");
         }
         unset($lastError);
