@@ -311,6 +311,7 @@ class AsyncTask
                 $tempOut = exec("ps -p $selfPID -o etimes=");
                 // this must exist (we are still running!), otherwise it indicates the kernel is broken and we can go grab a chicken dinner instead
                 $timeElapsed = (int) $tempOut;
+                unset($tempOut);
                 return $timeElapsed >= $this->timeLimit;
             }
         }
