@@ -270,7 +270,13 @@ class AsyncTask
         return $this;
     }
 
-    private function pcntlGracefulExit(): never
+    /**
+     * On Unix only. Signal handler for SIGTERM to catch it and exit() instead.
+     * 
+     * NOT FOR EXTERNAL USE!
+     * @return never
+     */
+    public function pcntlGracefulExit(): never
     {
         // just exit is ok
         // exit asap so that our error checking inside shutdown functions can take place outside of the usual max_execution_time limit
