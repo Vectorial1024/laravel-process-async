@@ -1,6 +1,6 @@
 <?php
 
-namespace Vectorial1024\LaravelProcessAsync\Tests;
+namespace Vectorial1024\LaravelProcessAsync\Tests\Tasks;
 
 use Vectorial1024\LaravelProcessAsync\AsyncTaskInterface;
 

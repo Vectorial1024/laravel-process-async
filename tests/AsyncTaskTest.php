@@ -5,6 +5,8 @@ namespace Vectorial1024\LaravelProcessAsync\Tests;
 use LogicException;
 use RuntimeException;
 use Vectorial1024\LaravelProcessAsync\AsyncTask;
+use Vectorial1024\LaravelProcessAsync\Tests\Tasks\DummyAsyncTask;
+use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutNormalTask;
 
 class AsyncTaskTest extends BaseTestCase
 {
