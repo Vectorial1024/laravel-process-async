@@ -67,6 +67,13 @@ class AsyncTask
     private const TIME_EPSILON = 0.1;
 
     /**
+     * The bitmask that can filter for fatal runtime errors.
+     * 
+     * Fatal errors other than the specific "time limit exceeded" error must not trigger the timeout handlers.
+     */
+    private const FATAL_ERROR_BITMASK = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR;
+
+    /**
      * Indicates whether GNU coreutils is found in the system; in particular, we are looking for the timeout command inside coreutils.
      * 
      * If null, indicates we haven't checked this yet.
@@ -314,7 +321,7 @@ class AsyncTask
         // runtime timeout triggers a PHP fatal error
         // this can happen on Windows by our specification, or on Unix when the actual CLI PHP time limit is smaller than the time limit of this task
         $lastError = error_get_last();
-        if ($lastError !== null) {
+        if ($lastError !== null && ($lastError['type'] & self::FATAL_ERROR_BITMASK)) {
             // has fatal error; is it our timeout error?
             fwrite(STDERR, "error_get_last " . json_encode($lastError) . PHP_EOL);
             return str_contains($lastError['message'], "Maximum execution time");
