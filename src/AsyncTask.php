@@ -58,15 +58,6 @@ class AsyncTask
     private const LARAVEL_START = "LARAVEL_START";
 
     /**
-     * The epsilon time (in seconds) that will be added to the microtime to check for task timeouts.
-     * 
-     * For some unknown reason, theoretical solutions that rely on (supposed) Unix behavior does not pass the tests,
-     * so we are implementing this as a temporary workaround.
-     * @var float
-     */
-    private const TIME_EPSILON = 0.1;
-
-    /**
      * The bitmask that can filter for fatal runtime errors.
      * 
      * Fatal errors other than the specific "time limit exceeded" error must not trigger the timeout handlers.
@@ -125,9 +116,13 @@ class AsyncTask
             set_time_limit($this->timeLimit);
         } else {
             // assume anything not Windows to be Unix
-            // we already set it to kill this task after the timeout, so we just need to install a listener
+            // we already set it to kill this task after the timeout, so we just need to install a listener to catch the signal and exit gracefully
             pcntl_async_signals(true);
-            pcntl_signal(SIGTERM, [$this, 'pcntlGracefulExit']);
+            pcntl_signal(SIGTERM, function () {
+                // just exit is ok
+                // exit asap so that our error checking inside shutdown functions can take place outside of the usual max_execution_time limit
+                exit();
+            });
 
             // and we also need to see the command name of our parent, to correctly track time
             $this->timerProcID = getmypid();
@@ -191,8 +186,7 @@ class AsyncTask
             }
             $timeoutClause = static::$timeoutCmdName . " {$this->timeLimit}";
         }
-        // $this->runnerProcess = Process::quietly()->start("nohup $timeoutClause $baseCommand >/dev/null 2>&1");
-        $this->runnerProcess = Process::quietly()->start("nohup $timeoutClause $baseCommand");
+        $this->runnerProcess = Process::quietly()->start("nohup $timeoutClause $baseCommand >/dev/null 2>&1");
     }
 
     /**
@@ -278,19 +272,6 @@ class AsyncTask
     }
 
     /**
-     * On Unix only. Signal handler for SIGTERM to catch it and exit() instead.
-     * 
-     * NOT FOR EXTERNAL USE!
-     * @return never
-     */
-    public function pcntlGracefulExit(): never
-    {
-        // just exit is ok
-        // exit asap so that our error checking inside shutdown functions can take place outside of the usual max_execution_time limit
-        exit();
-    }
-
-    /**
      * A shutdown function.
      * 
      * Upon shutdown, checks whether this is due to the task timing out, and if so, triggers the timeout handler.
@@ -323,7 +304,6 @@ class AsyncTask
         $lastError = error_get_last();
         if ($lastError !== null && ($lastError['type'] & self::FATAL_ERROR_BITMASK)) {
             // has fatal error; is it our timeout error?
-            fwrite(STDERR, "error_get_last " . json_encode($lastError) . PHP_EOL);
             return str_contains($lastError['message'], "Maximum execution time");
         }
         unset($lastError);
@@ -338,8 +318,6 @@ class AsyncTask
 
             // check LARAVEL_START with microtime
             $timeElapsed = microtime(true) - $this->laravelStartVal;
-            // temp let runner print me the stats
-            fwrite(STDERR, "microtime elapsed $timeElapsed" . PHP_EOL);
             if ($timeElapsed >= $this->timeLimit) {
                 // yes
                 return true;
@@ -354,12 +332,10 @@ class AsyncTask
                 $tempOut = exec("ps -p {$this->timerProcID} -o etimes=");
                 // this must exist (we are still running!), otherwise it indicates the kernel is broken and we can go grab a chicken dinner instead
                 $timeElapsed = (int) $tempOut;
-                fwrite(STDERR, "proc-stat elapsed $timeElapsed" . PHP_EOL);
                 unset($tempOut);
-                // we believe there is a seemingly unexplainable behavior that results in the etimes to be off-by-1 when it would be terminated by `timeout`
-                // e.g., when killed by `timeout` with time limit = 7, the etime might actually be 6.999999... and it gets displayed as 6, thus failing the check
-                // so, just to be sure, we will make it timeout when killed at the last second to the time limit
-                return $timeElapsed >= $this->timeLimit;
+                // it seems like etimes can get random off-by-1 inaccuracies (e.g. timeout supposed to be 7, but etimes sees 6.99999... and prints "6")
+                // so, we will still trigger the timeout handler if the runner is killed in its last second of execution; we trust the timeout command for this
+                return $timeElapsed + 1 >= $this->timeLimit;
             }
         }
 
