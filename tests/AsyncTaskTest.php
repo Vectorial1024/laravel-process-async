@@ -6,6 +6,9 @@ use LogicException;
 use RuntimeException;
 use Vectorial1024\LaravelProcessAsync\AsyncTask;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\DummyAsyncTask;
+use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutENoticeTask;
+use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutErrorTask;
+use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutNoOpTask;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutNormalTask;
 
 class AsyncTaskTest extends BaseTestCase
@@ -143,6 +146,51 @@ class AsyncTaskTest extends BaseTestCase
         // should have timed out
         $this->assertFileExists($textFilePath, "The async task probably did not trigger its timeout handler because its timeout output file is not found.");
         $this->assertStringEqualsFile($textFilePath, $message);
+        $this->assertNoNohupFile();
+    }
+    
+    public function testAsyncTimeoutIgnoreErrors()
+    {
+        // test that the async timeout handler is not triggered due to other fatal errors
+        $message = "timeout occured";
+        $textFilePath = $this->getStoragePath("testAsyncTimeoutIgnoreErrors.txt");
+        $timeoutTask = new TestTimeoutErrorTask($message, $textFilePath);
+        $task = new AsyncTask($timeoutTask);
+        $task->withTimeLimit(1)->start();
+        // we wait for it to timeout
+        $this->sleep(1);
+        // should have timed out
+        $this->assertFileDoesNotExist($textFilePath, "The async task timeout handler was inappropriately triggered (PHP fatal errors should not trigger timeouts).");
+        $this->assertNoNohupFile();
+    }
+
+    public function testAsyncTimeoutIgnoreNoProblem()
+    {
+        // test that the async timeout handler is not triggered when nothing happened
+        $message = "timeout occured";
+        $textFilePath = $this->getStoragePath("testAsyncTimeoutIgnoreNoProblem.txt");
+        $timeoutTask = new TestTimeoutNoOpTask($message, $textFilePath);
+        $task = new AsyncTask($timeoutTask);
+        $task->withTimeLimit(1)->start();
+        // we wait for it to timeout
+        $this->sleep(1);
+        // should have timed out
+        $this->assertFileDoesNotExist($textFilePath, "The async task timeout handler was inappropriately triggered (finishing a task before the time limit should not trigger timeouts).");
+        $this->assertNoNohupFile();
+    }
+    
+    public function testAsyncTimeoutIgnoreENotice()
+    {
+        // test that the async timeout handler is not triggered when there is an E_NOTICE error
+        $message = "timeout occured";
+        $textFilePath = $this->getStoragePath("testAsyncTimeoutIgnoreENotice.txt");
+        $timeoutTask = new TestTimeoutENoticeTask($message, $textFilePath);
+        $task = new AsyncTask($timeoutTask);
+        $task->withTimeLimit(1)->start();
+        // we wait for it to timeout
+        $this->sleep(1);
+        // should have timed out
+        $this->assertFileDoesNotExist($textFilePath, "The async task timeout handler was inappropriately triggered (E_NOTICE should not trigger timeouts).");
         $this->assertNoNohupFile();
     }
 }
