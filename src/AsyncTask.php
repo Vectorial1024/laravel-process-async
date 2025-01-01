@@ -359,7 +359,7 @@ class AsyncTask
                 // we believe there is a seemingly unexplainable behavior that results in the etimes to be off-by-1 when it would be terminated by `timeout`
                 // e.g., when killed by `timeout` with time limit = 7, the etime might actually be 6.999999... and it gets displayed as 6, thus failing the check
                 // so, just to be sure, we will make it timeout when killed at the last second to the time limit
-                return $timeElapsed + 1 >= $this->timeLimit;
+                return $timeElapsed >= $this->timeLimit;
             }
         }
 
