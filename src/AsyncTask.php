@@ -340,7 +340,7 @@ class AsyncTask
             $timeElapsed = microtime(true) - $this->laravelStartVal;
             // temp let runner print me the stats
             fwrite(STDERR, "microtime elapsed $timeElapsed" . PHP_EOL);
-            if ($timeElapsed + self::TIME_EPSILON >= $this->timeLimit) {
+            if ($timeElapsed >= $this->timeLimit) {
                 // yes
                 return true;
             }
