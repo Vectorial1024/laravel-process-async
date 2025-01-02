@@ -253,7 +253,7 @@ class AsyncTask
     /**
      * Sets the maximum real time this task is allowed to run. Chainable.
      * 
-     * When the task reaches the time limit, the relevant handler will be called.
+     * When the task reaches the time limit, the timeout handler (if exists) will be called.
      * @param int $seconds The time limit in seconds.
      * @return AsyncTask $this for chaining.
      */
@@ -270,7 +270,7 @@ class AsyncTask
     }
 
     /**
-     * Sets this task to run forever with no time limit. Chainable.
+     * Sets this task to run with no time limit (PHP INI `max_execution_time` may apply). Chainable.
      * @return AsyncTask $this for chaining.
      */
     public function withoutTimeLimit(): static
