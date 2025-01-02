@@ -321,6 +321,11 @@ class AsyncTask
         }
         unset($lastError);
 
+        // the remaining checks use the time-limit variable, so if it is unset, then there is nothing to check
+        if ($this->timeLimit <= 0) {
+            return false;
+        }
+
         // not a runtime timeout; one of the following:
         // it ended within the time limit; or
         // on Unix, it ran out of time so it is getting a SIGTERM from us; or
