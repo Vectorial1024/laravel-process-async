@@ -154,6 +154,7 @@ class AsyncTaskTest extends BaseTestCase
         // test that the async timeout handler is not triggered due to other fatal errors
         $message = "timeout occured";
         $textFilePath = $this->getStoragePath("testAsyncTimeoutIgnoreErrors.txt");
+        @unlink($textFilePath);
         $timeoutTask = new TestTimeoutErrorTask($message, $textFilePath);
         $task = new AsyncTask($timeoutTask);
         $task->withTimeLimit(1)->start();
@@ -169,6 +170,7 @@ class AsyncTaskTest extends BaseTestCase
         // test that the async timeout handler is not triggered when nothing happened
         $message = "timeout occured";
         $textFilePath = $this->getStoragePath("testAsyncTimeoutIgnoreNoProblem.txt");
+        @unlink($textFilePath);
         $timeoutTask = new TestTimeoutNoOpTask($message, $textFilePath);
         $task = new AsyncTask($timeoutTask);
         $task->withTimeLimit(1)->start();
@@ -179,6 +181,7 @@ class AsyncTaskTest extends BaseTestCase
         $this->assertNoNohupFile();
 
         // repeat with no time limit
+        @unlink($textFilePath);
         $task = new AsyncTask($timeoutTask);
         $task->withoutTimeLimit()->start();
         // we wait for it to timeout
@@ -193,6 +196,7 @@ class AsyncTaskTest extends BaseTestCase
         // test that the async timeout handler is not triggered when there is an E_NOTICE error
         $message = "timeout occured";
         $textFilePath = $this->getStoragePath("testAsyncTimeoutIgnoreENotice.txt");
+        @unlink($textFilePath);
         $timeoutTask = new TestTimeoutENoticeTask($message, $textFilePath);
         $task = new AsyncTask($timeoutTask);
         $task->withTimeLimit(1)->start();
