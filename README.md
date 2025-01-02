@@ -69,6 +69,24 @@ $task->start();
 // the task is now run in another PHP process, and will not report back to this PHP process.
 ```
 
+### Task time limits
+You can set task time limits before you start them, but you cannot change them after the tasks are started. When the time limit is reached, the async task is killed.
+
+The default time limit is 30 real seconds. You can also choose to not set any time limit, in this case the (CLI) PHP `max_execution_time` directive will control the time limit.
+
+Note: `AsyncTaskInterface` contains an implementable method `handleTimeout` for you to define timeout-related cleanups (e.g. write to some log that the task has timed out). This method is still called when the PHP `max_execution_time` directive is triggered.
+
+```php
+// start with the default time limit...
+$task->start();
+
+// start task with a different time limit...
+$task->withTimeLimit(15)->start();
+
+// ...or not have any limits at all (beware of orphaned processes!)
+$task->withoutTimeLimit()->start();
+```
+
 ## Testing
 PHPUnit via Composer script:
 ```sh
