@@ -82,6 +82,7 @@ class AsyncTaskTest extends BaseTestCase
     {
         // tests that we can dispatch async tasks to the cli artisan
         $testFileName = $this->getStoragePath("testAsyncBasic.txt");
+        @unlink($testFileName);
         $message = "Hello world!";
         $task = new AsyncTask(function () use ($testFileName, $message) {
             $fp = fopen($testFileName, "w");
@@ -139,6 +140,7 @@ class AsyncTaskTest extends BaseTestCase
         $message = "timeout occured";
         $textFilePath = $this->getStoragePath("testAsyncTimeout.txt");
         $timeoutTask = new TestTimeoutNormalTask($message, $textFilePath);
+        @unlink($textFilePath);
         $task = new AsyncTask($timeoutTask);
         $task->withTimeLimit(1)->start();
         // we wait for it to timeout
