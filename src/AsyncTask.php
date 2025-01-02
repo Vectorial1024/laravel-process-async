@@ -52,6 +52,12 @@ class AsyncTask
     private int $timerProcID = 0;
 
     /**
+     * On Unix only. Indicates whether a SIGINT has been received.
+     * @var bool
+     */
+    private bool $hasSigInt = false;
+
+    /**
      * The string constant name for constant('LARAVEL_START'). Mainly to keep the code clean.
      * @var string
      */
@@ -118,9 +124,10 @@ class AsyncTask
             // assume anything not Windows to be Unix
             // we already set it to kill this task after the timeout, so we just need to install a listener to catch the signal and exit gracefully
             pcntl_async_signals(true);
-            pcntl_signal(SIGTERM, function () {
-                // just exit is ok
+            pcntl_signal(SIGINT, function () {
+                // sicne we are already running with nohup, we can use SIGINT to indicate that a timeout has occurred.
                 // exit asap so that our error checking inside shutdown functions can take place outside of the usual max_execution_time limit
+                $this->hasSigInt = true;
                 exit();
             });
 
@@ -184,7 +191,8 @@ class AsyncTask
                 // can't do anything without GNU coreutils!
                 throw new RuntimeException("AsyncTask time limit requires GNU coreutils, but GNU coreutils was not installed");
             }
-            $timeoutClause = static::$timeoutCmdName . " {$this->timeLimit}";
+            // 2 is INT signal
+            $timeoutClause = static::$timeoutCmdName . " -s 2 {$this->timeLimit}";
         }
         $this->runnerProcess = Process::quietly()->start("nohup $timeoutClause $baseCommand >/dev/null 2>&1");
     }
@@ -299,6 +307,11 @@ class AsyncTask
     {
         // we perform a series of checks to see if this task has timed out
 
+        // dedicated SIGINT indicates a timeout
+        if ($this->hasSigInt) {
+            return true;
+        }
+
         // runtime timeout triggers a PHP fatal error
         // this can happen on Windows by our specification, or on Unix when the actual CLI PHP time limit is smaller than the time limit of this task
         $lastError = error_get_last();
@@ -334,8 +347,7 @@ class AsyncTask
                 $timeElapsed = (int) $tempOut;
                 unset($tempOut);
                 // it seems like etimes can get random off-by-1 inaccuracies (e.g. timeout supposed to be 7, but etimes sees 6.99999... and prints "6")
-                // so, we will still trigger the timeout handler if the runner is killed in its last second of execution; we trust the timeout command for this
-                return $timeElapsed + 1 >= $this->timeLimit;
+                return $timeElapsed >= $this->timeLimit;
             }
         }
 
