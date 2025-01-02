@@ -177,6 +177,15 @@ class AsyncTaskTest extends BaseTestCase
         // should have timed out
         $this->assertFileDoesNotExist($textFilePath, "The async task timeout handler was inappropriately triggered (finishing a task before the time limit should not trigger timeouts).");
         $this->assertNoNohupFile();
+
+        // repeat with no time limit
+        $task = new AsyncTask($timeoutTask);
+        $task->withoutTimeLimit()->start();
+        // we wait for it to timeout
+        $this->sleep(0.5);
+        // should have timed out
+        $this->assertFileDoesNotExist($textFilePath, "The async task timeout handler was inappropriately triggered (tasks without time limits should not trigger timeouts).");
+        $this->assertNoNohupFile();
     }
     
     public function testAsyncTimeoutIgnoreENotice()
