@@ -13,13 +13,17 @@ Utilize Laravel Processes to run PHP code asynchronously.
 - Restrictions from `laravel/serializable-closure` apply (see [their README](https://github.com/laravel/serializable-closure))
 - Hands-off execution: no built-in result-checking, check the results yourself (e.g. via database, file cache, etc)
 
+This library internally uses an Artisan command to run the async code, which is similar to Laravel 11 [Concurrency](https://laravel.com/docs/11.x/concurrency).
+
 ## Why should I want this?
 This library is very helpful for these cases:
-- You want a minimal-setup async for easy vertical scaling
+- You want a cross-platform minimal-setup async for easy vertical scaling
 - You want to start quick-and-dirty async tasks right now (e.g. prefetching resources, pinging remote, etc.)
   - Best is if your task only has very few lines of code
 - Laravel 11 [Concurrency](https://laravel.com/docs/11.x/concurrency) is too limiting; e.g.:
   - You want to do something else while waiting for results
+  - You want to conveniently limit the max (real) execution time of the concurrent tasks
+- And perhaps more!
 
 Of course, if you are considering extreme scaling (e.g. Redis queues in Laravel, multi-worker clusters, etc.) or guaranteed task execution, then this library is obviously not for you.
 
@@ -31,6 +35,12 @@ composer require vectorial1024/laravel-process-async
 ```
 
 This library supports Unix and Windows; see the Testing section for more details.
+
+### Extra requirements for Unix
+If you are on Unix, check that you also have the following:
+- GNU Core Utilities (`coreutils`)
+  - MacOS do `brew install coreutils`!
+  - Other Unix distros should check if `coreutils` is preinstalled
 
 ## Change log
 Please see `CHANGELOG.md`.
@@ -57,6 +67,24 @@ $task = new AsyncTask(function () use ($target) {
 $task->start();
 
 // the task is now run in another PHP process, and will not report back to this PHP process.
+```
+
+### Task time limits
+You can set task time limits before you start them, but you cannot change them after the tasks are started. When the time limit is reached, the async task is killed.
+
+The default time limit is 30 real seconds. You can also choose to not set any time limit, in this case the (CLI) PHP `max_execution_time` directive will control the time limit.
+
+Note: `AsyncTaskInterface` contains an implementable method `handleTimeout` for you to define timeout-related cleanups (e.g. write to some log that the task has timed out). This method is still called when the PHP `max_execution_time` directive is triggered.
+
+```php
+// start with the default time limit...
+$task->start();
+
+// start task with a different time limit...
+$task->withTimeLimit(15)->start();
+
+// ...or not have any limits at all (beware of orphaned processes!)
+$task->withoutTimeLimit()->start();
 ```
 
 ## Testing

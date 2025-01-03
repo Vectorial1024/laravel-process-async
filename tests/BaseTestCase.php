@@ -21,13 +21,51 @@ class BaseTestCase extends TestCase
     // ---
 
     /**
+     * Returns the base path of this project (i.e., the directory of composer.json).
+     * @return string
+     */
+    protected function getBasePath(): string
+    {
+        return dirname(__FILE__, 2);
+    }
+
+    /**
      * Returns the path for mocking the Laravel storage path.
      * @param string $fileName
      * @return string
      */
     protected function getStoragePath(string $fileName): string
     {
-        return dirname(__FILE__, 2) . "/storage/$fileName";
+        return $this->getBasePath() . "/storage/$fileName";
+    }
+
+    /**
+     * Sleeps for some time.
+     * @param float $seconds The number of seconds.
+     * @return void
+     */
+    protected function sleep(float $seconds): void
+    {
+        $wholeSeconds = (int) $seconds;
+        $fractionalSeconds = $seconds - $wholeSeconds;
+        if ($wholeSeconds > 0) {
+            sleep($wholeSeconds);
+        }
+        if ($fractionalSeconds > 0) {
+            usleep($fractionalSeconds * 1000000);
+        }
+    }
+
+    /**
+     * Asserts that the nohup.out file is not found in our project while running CI/CD. This checks that we are truly silencing the output of the task runner.
+     * 
+     * Applicable only in Unix systems; Windows systems will get a vacuous successful assertion on this.
+     * @return void
+     */
+    protected function assertNoNohupFile(string $message = ''): void
+    {
+        $nohupFilePath = $this->getBasePath() . "/nohup.out";
+        $this->assertFileDoesNotExist($nohupFilePath, "The async task did not run silently since the nohup.out file can be found.");
     }
 
     // ---
