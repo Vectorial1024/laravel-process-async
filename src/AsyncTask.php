@@ -7,10 +7,11 @@ namespace Vectorial1024\LaravelProcessAsync;
 use Closure;
 use Illuminate\Process\InvokedProcess;
 use Illuminate\Support\Facades\Process;
-use Laravel\SerializableClosure\SerializableClosure;
 use LogicException;
 use loophp\phposinfo\OsInfo;
 use RuntimeException;
+
+use function Opis\Closure\{serialize, unserialize};
 
 /**
  * The common handler of an AsyncTask; this can be a closure (will be wrapped inside AsyncTask) or an interface instance.
@@ -19,9 +20,9 @@ class AsyncTask
 {
     /**
      * The task to be executed in the background.
-     * @var SerializableClosure|AsyncTaskInterface
+     * @var Closure|AsyncTaskInterface
      */
-    private SerializableClosure|AsyncTaskInterface $theTask;
+    private Closure|AsyncTaskInterface $theTask;
 
     /**
      * The process that is actually running this task. Tasks that are not started will have null here.
@@ -94,10 +95,7 @@ class AsyncTask
      */
     public function __construct(Closure|AsyncTaskInterface $theTask)
     {
-        if ($theTask instanceof Closure) {
-            // convert to serializable closure first
-            $theTask = new SerializableClosure($theTask);
-        }
+        // opis/closure allows direct storage of closure
         $this->theTask = $theTask;
     }
 
@@ -142,10 +140,8 @@ class AsyncTask
         }
 
         // then, execute the task itself
-        if ($this->theTask instanceof SerializableClosure) {
-            $innerClosure = $this->theTask->getClosure();
-            $innerClosure();
-            unset($innerClosure);
+        if ($this->theTask instanceof Closure) {
+            ($this->theTask)();
         } else {
             // must be AsyncTaskInterface
             $this->theTask->execute();
