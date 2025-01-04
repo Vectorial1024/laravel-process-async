@@ -119,7 +119,9 @@ class AsyncTask
         register_shutdown_function([$this, 'shutdownCheckTaskTimeout']);
         if (OsInfo::isWindows()) {
             // windows can just use PHP's time limit
-            set_time_limit($this->timeLimit);
+            if ($this->timeLimit > 0) {
+                set_time_limit($this->timeLimit);
+            }
         } else {
             // assume anything not Windows to be Unix
             // we already set it to kill this task after the timeout, so we just need to install a listener to catch the signal and exit gracefully
