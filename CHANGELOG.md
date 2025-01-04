@@ -1,4 +1,5 @@
 # Change Log of `laravel-process-async`
+Note: you may refer to `README.md` for description of features.
 
 ## Dev (WIP)
 
