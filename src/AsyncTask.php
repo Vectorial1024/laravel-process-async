@@ -99,6 +99,24 @@ class AsyncTask
         $this->theTask = $theTask;
     }
 
+    public function __serialize(): array
+    {
+        // serialize only the necessary info to reduce runner cmd length
+        return [
+            'theTask' => serialize($this->theTask),
+            'timeLimit' => $this->timeLimit,
+        ];
+    }
+
+    public function __unserialize($data): void
+    {
+        [
+            'theTask' => $tempTask,
+            'timeLimit' => $this->timeLimit,
+        ] = $data;
+        $this->theTask = unserialize($tempTask);
+    }
+
     /**
      * Inside an available PHP process, runs this AsyncTask instance.
      * 
