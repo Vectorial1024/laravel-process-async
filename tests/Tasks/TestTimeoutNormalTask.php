@@ -24,9 +24,6 @@ class TestTimeoutNormalTask implements AsyncTaskInterface
 
     public function handleTimeout(): void
     {
-        $fp = fopen($this->targetFilePath, "w");
-        fwrite($fp, $this->message);
-        fflush($fp);
-        fclose($fp);
+        file_put_contents($this->targetFilePath, $this->message);
     }
 }

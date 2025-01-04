@@ -21,10 +21,7 @@ class AsyncTaskTest extends BaseTestCase
         $testFileName = $this->getStoragePath("testClosure.txt");
         $message = "Hello world!";
         $task = new AsyncTask(function () use ($testFileName, $message) {
-            $fp = fopen($testFileName, "w");
-            fwrite($fp, $message);
-            fflush($fp);
-            fclose($fp);
+            file_put_contents($testFileName, $message);
         });
         $task->run();
 
@@ -85,10 +82,7 @@ class AsyncTaskTest extends BaseTestCase
         @unlink($testFileName);
         $message = "Hello world!";
         $task = new AsyncTask(function () use ($testFileName, $message) {
-            $fp = fopen($testFileName, "w");
-            fwrite($fp, $message);
-            fflush($fp);
-            fclose($fp);
+            file_put_contents($testFileName, $message);
         });
         $task->start();
 

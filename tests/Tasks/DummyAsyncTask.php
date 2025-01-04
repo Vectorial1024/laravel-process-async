@@ -16,10 +16,7 @@ class DummyAsyncTask implements AsyncTaskInterface
 
     public function execute(): void
     {
-        $fp = fopen($this->targetFilePath, "w");
-        fwrite($fp, $this->message);
-        fflush($fp);
-        fclose($fp);
+        file_put_contents($this->targetFilePath, $this->message);
     }
 
     public function handleTimeout(): void

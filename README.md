@@ -54,10 +54,7 @@ A very simple example task to write Hello World to a file:
 // define the task...
 $target = "document.txt";
 $task = new AsyncTask(function () use ($target) {
-    $fp = fopen($target, "w");
-    fwrite($fp, "Hello World!!");
-    fflush($fp);
-    fclose($fp);
+    file_put_contents($target, "Hello World!");
 });
 
 // if you are using interfaces, then it is just like this:
