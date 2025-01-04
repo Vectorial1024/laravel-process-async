@@ -5,7 +5,7 @@
 [![PHP Dependency Version][php-version-image]][packagist-url]
 [![GitHub Repo Stars][github-stars-image]][github-repo-url]
 
-Utilize Laravel Processes to run PHP code asynchronously.
+Utilize Laravel Processes to run PHP code asynchronously, as if using Laravel Concurrency.
 
 ## What really is this?
 [Laravel Processes](https://laravel.com/docs/10.x/processes) was first introduced in Laravel 10. This library wraps around `Process::start()` to let you execute code in the background to achieve async, albeit with some caveats:
