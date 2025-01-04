@@ -45,7 +45,7 @@ If you are on Unix, check that you also have the following:
 ## Change log
 Please see `CHANGELOG.md`.
 
-## Example code
+## Example code and features
 Tasks can be defined as PHP closures, or (recommended) as an instance of a class that implements `AsyncTaskInterface`.
 
 A very simple example task to write Hello World to a file:
@@ -86,6 +86,11 @@ $task->withTimeLimit(15)->start();
 // ...or not have any limits at all (beware of orphaned processes!)
 $task->withoutTimeLimit()->start();
 ```
+
+Some tips:
+- Don't sleep too long! On Windows, timeout handlers cannot trigger while your task is sleeping.
+  - Use short but frequent sleeps instead.
+- Avoid using `SIGINT`! On Unix, this signal is reserved for timeout detection. 
 
 ## Testing
 PHPUnit via Composer script:
