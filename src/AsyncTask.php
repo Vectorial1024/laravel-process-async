@@ -103,7 +103,7 @@ class AsyncTask
     {
         // serialize only the necessary info to reduce runner cmd length
         return [
-            'theTask' => serialize($this->theTask),
+            'theTask' => $this->theTask,
             'timeLimit' => $this->timeLimit,
         ];
     }
@@ -111,10 +111,10 @@ class AsyncTask
     public function __unserialize($data): void
     {
         [
-            'theTask' => $tempTask,
+            'theTask' => $this->theTask,
             'timeLimit' => $this->timeLimit,
         ] = $data;
-        $this->theTask = unserialize($tempTask);
+        // $this->theTask = unserialize($tempTask);
     }
 
     /**
