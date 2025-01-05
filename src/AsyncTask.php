@@ -25,6 +25,14 @@ class AsyncTask
     private SerializableClosure|AsyncTaskInterface $theTask;
 
     /**
+     * The user-specified ID of the current task. (Null means user did not specify any ID).
+     * 
+     * If null, the task will generate an unsaved random ID when it is started.
+     * @var string|null
+     */
+    private string|null $taskID;
+
+    /**
      * The process that is actually running this task. Tasks that are not started will have null here.
      * @var InvokedProcess|null
      */
@@ -92,14 +100,16 @@ class AsyncTask
     /**
      * Creates an AsyncTask instance.
      * @param Closure|AsyncTaskInterface $theTask The task to be executed in the background.
+     * @param string|null $taskID (optional) The user-specified task ID of this AsyncTask. Should be unique.
      */
-    public function __construct(Closure|AsyncTaskInterface $theTask)
+    public function __construct(Closure|AsyncTaskInterface $theTask, string|null $taskID = null)
     {
         if ($theTask instanceof Closure) {
             // convert to serializable closure first
             $theTask = new SerializableClosure($theTask);
         }
         $this->theTask = $theTask;
+        $this->taskID = $taskID;
     }
 
     /**
@@ -165,8 +175,7 @@ class AsyncTask
     public function start(): AsyncTaskStatus
     {
         // prepare the task details
-        // todo allow changing the task ID
-        $taskID = null ?? Str::ulid();
+        $taskID = $this->taskID ?? Str::ulid()->toString();
         $taskStatus = new AsyncTaskStatus($taskID);
 
         // prepare the runner command
