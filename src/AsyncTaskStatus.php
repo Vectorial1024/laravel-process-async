@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Vectorial1024\LaravelProcessAsync;
 
-use RuntimeException;
+use InvalidArgumentException;
 
 /**
  * Represents the status of an async task: "running" or "stopped".
@@ -28,7 +28,7 @@ class AsyncTaskStatus
     ) {
         if ($taskID === "") {
             // why no blank IDs? because this will produce blank output via base64 encode.
-            throw new RuntimeException("AsyncTask IDs cannot be blank");
+            throw new InvalidArgumentException("AsyncTask IDs cannot be blank");
         }
     }
 

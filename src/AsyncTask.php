@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Process\InvokedProcess;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Laravel\SerializableClosure\SerializableClosure;
 use LogicException;
 use loophp\phposinfo\OsInfo;
@@ -109,6 +110,9 @@ class AsyncTask
             $theTask = new SerializableClosure($theTask);
         }
         $this->theTask = $theTask;
+        if ($taskID === "") {
+            throw new InvalidArgumentException("AsyncTask ID cannot be empty.");
+        }
         $this->taskID = $taskID;
     }
 
