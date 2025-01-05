@@ -180,7 +180,8 @@ class AsyncTask
 
         // prepare the runner command
         $serializedTask = $this->toBase64Serial();
-        $baseCommand = "php artisan async:run $serializedTask";
+        $encodedTaskID = $taskStatus->getEncodedTaskID();
+        $baseCommand = "php artisan async:run $serializedTask --id='$encodedTaskID'";
 
         // then, specific actions depending on the runtime OS
         if (OsInfo::isWindows()) {
