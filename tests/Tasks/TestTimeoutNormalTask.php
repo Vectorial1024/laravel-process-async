@@ -17,9 +17,12 @@ class TestTimeoutNormalTask implements AsyncTaskInterface
     public function execute(): void
     {
         // we have to sleep a bit to trigger the timeout
-        // the test has a timeout of 1s, so we try to sleep for 1.5s
-        sleep(1);
-        usleep(500000);
+        // the test has a timeout of 1s, so we try to sleep for slightly longer than 1 seconds
+        // this is currently 1.2 seconds
+        usleep(300000);
+        usleep(300000);
+        usleep(300000);
+        usleep(300000);
     }
 
     public function handleTimeout(): void
