@@ -7,6 +7,7 @@ namespace Vectorial1024\LaravelProcessAsync;
 use Closure;
 use Illuminate\Process\InvokedProcess;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Str;
 use Laravel\SerializableClosure\SerializableClosure;
 use LogicException;
 use loophp\phposinfo\OsInfo;
@@ -159,10 +160,15 @@ class AsyncTask
 
     /**
      * Starts this AsyncTask immediately in the background. A runner will then run this AsyncTask.
-     * @return void
+     * @return AsyncTaskStatus The status object for the started AsyncTask.
      */
-    public function start(): void
+    public function start(): AsyncTaskStatus
     {
+        // prepare the task details
+        // todo allow changing the task ID
+        $taskID = null ?? Str::ulid();
+        $taskStatus = new AsyncTaskStatus($taskID);
+
         // prepare the runner command
         $serializedTask = $this->toBase64Serial();
         $baseCommand = "php artisan async:run $serializedTask";
@@ -173,7 +179,7 @@ class AsyncTask
             // but we require cmd (ps won't work here), so might as well force cmd like this
             // windows has real max time limit
             $this->runnerProcess = Process::quietly()->start("cmd >nul 2>nul /c start /b $baseCommand");
-            return;
+            return $taskStatus;
         }
         // assume anything not windows to be unix
         // unix use nohup
@@ -197,6 +203,7 @@ class AsyncTask
             $timeoutClause = static::$timeoutCmdName . " -s 2 {$this->timeLimit}";
         }
         $this->runnerProcess = Process::quietly()->start("nohup $timeoutClause $baseCommand >/dev/null 2>&1");
+        return $taskStatus;
     }
 
     /**
