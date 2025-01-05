@@ -172,7 +172,7 @@ class AsyncTask
             // basically, in windows, it is too tedioous to check whether we are in cmd or ps,
             // but we require cmd (ps won't work here), so might as well force cmd like this
             // windows has real max time limit
-            $this->runnerProcess = Process::quietly()->start("cmd /c start /b $baseCommand");
+            $this->runnerProcess = Process::quietly()->start("cmd >nul 2>nul /c start /b $baseCommand");
             return;
         }
         // assume anything not windows to be unix
