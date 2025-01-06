@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Vectorial1024\LaravelProcessAsync;
 
 use InvalidArgumentException;
+use loophp\phposinfo\OsInfo;
+use RuntimeException;
 
 /**
  * Represents the status of an async task: "running" or "stopped".
@@ -98,7 +100,42 @@ class AsyncTaskStatus
      */
     private function findTaskRunnerProcess(): bool
     {
-        // todo
+        if (OsInfo::isWindows()) {
+            // todo Windows
+            return false;
+        }
+        // assume anything not Windows to be Unix
+        // find the runner on Unix systems via pgrep
+        // we might have multiple PIDs, so do store them in an array
+        $results = [];
+        $encodedTaskID = $this->getEncodedTaskID();
+        exec("pgrep -f id='$encodedTaskID'", $results);
+        // supposedly there should be only 1 entry, but anyway
+        $expectedCmdName = "artisan async:run";
+        foreach ($results as $candidatePID) {
+            $candidatePID = (int) $candidatePID;
+            // then use ps to see what really is it
+            $fullCmd = exec("ps -p $candidatePID -o args=");
+            if ($fullCmd === false) {
+                throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+            }
+            if (!str_contains($fullCmd, $expectedCmdName)) {
+                // not really
+                continue;
+            }
+            $executable = exec("ps -p $candidatePID -o comm=");
+            if ($executable === false) {
+                throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+            }
+            if ($executable !== "php") {
+                // not really
+                // note: we currently hard-code "php" as the executable name
+                continue;
+            }
+            // this is it!
+            $this->lastKnownPID = $candidatePID;
+            return true;
+        }
         return false;
     }
 
@@ -108,7 +145,18 @@ class AsyncTaskStatus
      */
     private function observeTaskRunnerProcess(): bool
     {
-        // todo
-        return false;
+        if (OsInfo::isWindows()) {
+            // todo Windows
+            return false;
+        }
+        // assume anything not Windows to be Unix
+        // since we should have remembered the PID, we can just query whether it still exists
+        // supposedly, the PID has not rolled over yet, right...?
+        $echoedPid = exec("ps -p {$this->lastKnownPID} -o pid=");
+        if ($echoedPid === false) {
+            throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+        }
+        $echoedPid = (int) $echoedPid;
+        return $this->lastKnownPID === $echoedPid;
     }
 }
