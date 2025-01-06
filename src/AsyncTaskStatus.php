@@ -28,6 +28,12 @@ class AsyncTaskStatus
     private bool $isStopped = false;
 
     /**
+     * The last known PID of the task runner.
+     * @var int|null If null, it means the PID is unknown or expired.
+     */
+    private int|null $lastKnownPID = null;
+
+    /**
      * Constructs a status object.
      * @param string $taskID The task ID of the async task so to check its status.
      */
@@ -57,7 +63,7 @@ class AsyncTaskStatus
      * 
      * Note: when this method detects that the task has stopped running, it will not recheck whether the task has restarted.
      * Use a fresh status object to track the (restarted) task.
-     * @return bool
+     * @return bool If true, indicates the task is still running.
      */
     public function isRunning(): bool
     {
@@ -70,5 +76,39 @@ class AsyncTaskStatus
             $this->isStopped = true;
         }
         return $isRunning;
+    }
+
+    /**
+     * Attepts to prove whether the AsyncTask is still running
+     * @return bool If false, then the task is shown to have been stopped.
+     */
+    private function proveTaskIsRunning(): bool
+    {
+        if ($this->lastKnownPID === null) {
+            // we don't know where the task runner is at; find it!
+            return $this->findTaskRunnerProcess();
+        }
+        // we know the task runner; is it still running?
+        return $this->observeTaskRunnerProcess();
+    }
+
+    /**
+     * Attempts to find the task runner process (if exists), and writes down its PID.
+     * @return bool If true, then the task runner is successfully found.
+     */
+    private function findTaskRunnerProcess(): bool
+    {
+        // todo
+        return false;
+    }
+
+    /**
+     * Given a previously-noted PID of the task runner, see if the task runner is still alive.
+     * @return bool If true, then the task runner is still running.
+     */
+    private function observeTaskRunnerProcess(): bool
+    {
+        // todo
+        return false;
     }
 }
