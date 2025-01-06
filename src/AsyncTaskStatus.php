@@ -20,6 +20,14 @@ class AsyncTaskStatus
     private string|null $encodedTaskID = null;
 
     /**
+     * Indicates whether the task is stopped.
+     * 
+     * Note: the criteria is "pretty sure it is stopped"; once the task is stopped, it stays stopped.
+     * @var bool
+     */
+    private bool $isStopped = false;
+
+    /**
      * Constructs a status object.
      * @param string $taskID The task ID of the async task so to check its status.
      */
@@ -42,5 +50,25 @@ class AsyncTaskStatus
             $this->encodedTaskID = base64_encode($this->taskID);
         }
         return $this->encodedTaskID;
+    }
+
+    /**
+     * Returns whether the AsyncTask is still running.
+     * 
+     * Note: when this method detects that the task has stopped running, it will not recheck whether the task has restarted.
+     * Use a fresh status object to track the (restarted) task.
+     * @return bool
+     */
+    public function isRunning(): bool
+    {
+        if ($this->isStopped) {
+            return false;
+        }
+        // prove it is running
+        $isRunning = false;
+        if (!$isRunning) {
+            $this->isStopped = true;
+        }
+        return $isRunning;
     }
 }
