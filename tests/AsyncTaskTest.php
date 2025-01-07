@@ -2,10 +2,13 @@
 
 namespace Vectorial1024\LaravelProcessAsync\Tests;
 
+use InvalidArgumentException;
 use LogicException;
 use RuntimeException;
 use Vectorial1024\LaravelProcessAsync\AsyncTask;
+use Vectorial1024\LaravelProcessAsync\AsyncTaskStatus;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\DummyAsyncTask;
+use Vectorial1024\LaravelProcessAsync\Tests\Tasks\SleepingAsyncTask;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutENoticeTask;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutErrorTask;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutNoOpTask;
@@ -138,9 +141,12 @@ class AsyncTaskTest extends BaseTestCase
         $task = new AsyncTask($timeoutTask);
         $task->withTimeLimit(1)->start();
         // we wait for it to timeout
-        $this->sleep(0.5);
-        $this->sleep(0.5);
-        $this->sleep(0.5);
+        $this->sleep(0.3);
+        $this->sleep(0.3);
+        $this->sleep(0.3);
+        $this->sleep(0.3);
+        $this->sleep(0.3);
+        $this->sleep(0.3);
         // should have timed out
         $this->assertFileExists($textFilePath, "The async task probably did not trigger its timeout handler because its timeout output file is not found.");
         $this->assertStringEqualsFile($textFilePath, $message);
@@ -203,5 +209,26 @@ class AsyncTaskTest extends BaseTestCase
         // should have timed out
         $this->assertFileDoesNotExist($textFilePath, "The async task timeout handler was inappropriately triggered (E_NOTICE should not trigger timeouts).");
         $this->assertNoNohupFile();
+    }
+
+    public function testAsyncTaskID()
+    {
+        // test that we can correctly handle good and bad task IDs
+
+        // no ID is ok
+        $task = new AsyncTask(new SleepingAsyncTask());
+        unset($task);
+
+        // has ID is also ok
+        $task = new AsyncTask(new SleepingAsyncTask(), taskID: "yeah");
+        unset($task);
+
+        // but blank ID is not allowed
+        $this->expectException(InvalidArgumentException::class);
+        $task = new AsyncTask(new SleepingAsyncTask(), taskID: "");
+        unset($task);
+        $this->expectException(InvalidArgumentException::class);
+        $taskStatus = new AsyncTaskStatus("");
+        unset($taskStatus);
     }
 }
