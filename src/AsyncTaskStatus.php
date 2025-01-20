@@ -100,13 +100,73 @@ class AsyncTaskStatus
      */
     private function findTaskRunnerProcess(): bool
     {
+        // find the runner in the system
+        // we might have multiple PIDs; in this case, pick the first one that appears
         if (OsInfo::isWindows()) {
-            // todo Windows
+            // Windows uses GCIM to discover processes
+            $results = [];
+            $encodedTaskID = $this->getEncodedTaskID();
+            // we don't know whether we are in cmd or powershell, so we do this
+            // powershell allows inputting base64-encoded commands
+            // note: while powershell gcim allows reading everything in the same run, we cannot risk this since localizations might mess with string splitting
+            // things like CJK ":" will already break this.
+            $tmpPsCmd = "Get-CimInstance Win32_Process -Filter \"CommandLine LIKE '%id=\'$encodedTaskID\'%'\" | Select ProcessId | Format-List";
+            $tmpEncoded = base64_encode($tmpPsCmd);
+            $status = exec("powershell -EncodedCommand $tmpEncoded", $results);
+            if (!$status) {
+                throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+            }
+            // the way it works, it prints out many lines, and some of them contain the PID that we are interested in
+            $expectedCmdName = "artisan async:run";
+            foreach ($results as $possiblePid) {
+                if ($possiblePid == "") {
+                    // blank line
+                    continue;
+                }
+                $candidatePID = (int) $possiblePid;
+                // then use gcim again to see the cmd args
+                $tmpPsCmd = "Get-CimInstance Win32_Process -Filter \"ProcessId = $candidatePID\" | Select CommandLine | Format-Wide";
+                $innerResults = [];
+                $status = exec("powershell -Command $tmpPsCmd", $innerResults);
+                if (!$status) {
+                    throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+                }
+                foreach ($innerResults as $cmdArgs) {
+                    if ($cmdArgs == "") {
+                        // blank line
+                        continue;
+                    }
+                    if (!str_contains($cmdArgs, $expectedCmdName)) {
+                        // not this PID!
+                        continue 2;
+                    }
+                }
+                // then use gcim again to see the task runner
+                $tmpPsCmd = "Get-CimInstance Win32_Process -Filter \"ProcessId = $candidatePID\" | Select ProcessName | Format-Wide";
+                $innerResults = [];
+                exec("powershell -Command $tmpPsCmd", $innerResults);
+                if (!$status) {
+                    throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+                }
+                foreach ($innerResults as $executableName) {
+                    if ($executableName == "") {
+                        // blank line
+                        continue;
+                    }
+                    if ($executableName != "php.exe") {
+                        // wrong process
+                        // note: we currently hard-code "php.exe" as the executable name
+                        continue 2;
+                    }
+                }
+                // all checks passed; it is this one
+                $this->lastKnownPID = $candidatePID;
+                return true;
+            }
             return false;
         }
         // assume anything not Windows to be Unix
         // find the runner on Unix systems via pgrep
-        // we might have multiple PIDs, so do store them in an array
         $results = [];
         $encodedTaskID = $this->getEncodedTaskID();
         exec("pgrep -f id='$encodedTaskID'", $results);
