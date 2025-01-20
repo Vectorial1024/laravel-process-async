@@ -205,13 +205,27 @@ class AsyncTaskStatus
      */
     private function observeTaskRunnerProcess(): bool
     {
-        if (OsInfo::isWindows()) {
-            // todo Windows
-            return false;
-        }
-        // assume anything not Windows to be Unix
         // since we should have remembered the PID, we can just query whether it still exists
         // supposedly, the PID has not rolled over yet, right...?
+        if (OsInfo::isWindows()) {
+            // Windows uses GCIM to discover processes
+            $results = [];
+            $tmpPsCmd = "Get-CimInstance Win32_Process -Filter \"CommandLine LIKE '%id=\'{$this->lastKnownPID}\'%'\" | Select ProcessId | Format-List";
+            $status = exec("powershell -Command $tmpPsCmd", $results);
+            if (!$status) {
+                throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+            }
+            // extract the PID
+            $echoedPid = null;
+            foreach ($results as $possiblePid) {
+                if ($possiblePid == "") {
+                    continue;
+                }
+                $echoedPid = (int) $possiblePid;
+            }
+            return $this->lastKnownPID === $echoedPid;
+        }
+        // assume anything not Windows to be Unix
         $echoedPid = exec("ps -p {$this->lastKnownPID} -o pid=");
         if ($echoedPid === false) {
             throw new RuntimeException("Could not query whether the AsyncTask is still running.");
