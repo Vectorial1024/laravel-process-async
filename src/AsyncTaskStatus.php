@@ -75,7 +75,7 @@ class AsyncTaskStatus
             return false;
         }
         // prove it is running
-        $isRunning = false;
+        $isRunning = $this->proveTaskIsRunning();
         if (!$isRunning) {
             $this->isStopped = true;
         }

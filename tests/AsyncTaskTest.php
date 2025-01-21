@@ -231,4 +231,31 @@ class AsyncTaskTest extends BaseTestCase
         $taskStatus = new AsyncTaskStatus("");
         unset($taskStatus);
     }
+
+    public function testAsyncTaskNormalStatus()
+    {
+        // test that the task status reading is correct
+        $taskID = "testingTask";
+        $task = new AsyncTask(new SleepingAsyncTask(), taskID: $taskID);
+
+        // we haven't started yet, so this should say false 
+        $preStatus = new AsyncTaskStatus($taskID);
+        $this->assertFalse($preStatus->isRunning());
+        // note: since it detects false, it will always continue to say false
+        $this->assertFalse($preStatus->isRunning());
+
+        // now we start running the task
+        $liveStatus = $task->start();
+
+        // the task is to sleep for 2 seconds, and then exit.
+        for ($i = 0; $i < 2; $i++) {
+            // check the statuses; most likely still be running
+            $this->assertFalse($preStatus->isRunning(), "Incorrect pre-run task status at loop $i");
+            $this->assertTrue($liveStatus->isRunning(), "Incorrect live-run task status at loop $i");
+            $this->sleep(0.9);
+        }
+        // should have finished
+        $this->assertFalse($preStatus->isRunning(), "Incorrect pre-run task status at loop end");
+        $this->assertFalse($liveStatus->isRunning(), "Incorrect live-run task status at loop end");
+    }
 }
