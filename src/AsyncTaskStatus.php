@@ -15,6 +15,8 @@ use RuntimeException;
  */
 class AsyncTaskStatus
 {
+    private const MSG_CANNOT_CHECK_STATUS = "Could not check the status of the AsyncTask.";
+
     /**
      * The cached task ID for quick ID reusing. We will most probably reuse this ID many times.
      * @var string|null
@@ -114,7 +116,7 @@ class AsyncTaskStatus
             $tmpEncoded = base64_encode($tmpPsCmd);
             $status = exec("powershell -EncodedCommand $tmpEncoded", $results);
             if (!$status) {
-                throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+                throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
             }
             // the way it works, it prints out many lines, and some of them contain the PID that we are interested in
             $expectedCmdName = "artisan async:run";
@@ -129,7 +131,7 @@ class AsyncTaskStatus
                 $innerResults = [];
                 $status = exec("powershell -Command $tmpPsCmd", $innerResults);
                 if (!$status) {
-                    throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+                    throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
                 }
                 foreach ($innerResults as $cmdArgs) {
                     if ($cmdArgs == "") {
@@ -146,7 +148,7 @@ class AsyncTaskStatus
                 $innerResults = [];
                 exec("powershell -Command $tmpPsCmd", $innerResults);
                 if (!$status) {
-                    throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+                    throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
                 }
                 foreach ($innerResults as $executableName) {
                     if ($executableName == "") {
@@ -177,7 +179,7 @@ class AsyncTaskStatus
             // then use ps to see what really is it
             $fullCmd = exec("ps -p $candidatePID -o args=");
             if ($fullCmd === false) {
-                throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+                throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
             }
             if (!str_contains($fullCmd, $expectedCmdName)) {
                 // not really
@@ -185,7 +187,7 @@ class AsyncTaskStatus
             }
             $executable = exec("ps -p $candidatePID -o comm=");
             if ($executable === false) {
-                throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+                throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
             }
             if ($executable !== "php") {
                 // not really
@@ -213,7 +215,7 @@ class AsyncTaskStatus
             $tmpPsCmd = "Get-CimInstance Win32_Process -Filter \"CommandLine LIKE '%id=\'{$this->lastKnownPID}\'%'\" | Select ProcessId | Format-List";
             $status = exec("powershell -Command $tmpPsCmd", $results);
             if (!$status) {
-                throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+                throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
             }
             // extract the PID
             $echoedPid = null;
@@ -228,7 +230,7 @@ class AsyncTaskStatus
         // assume anything not Windows to be Unix
         $echoedPid = exec("ps -p {$this->lastKnownPID} -o pid=");
         if ($echoedPid === false) {
-            throw new RuntimeException("Could not query whether the AsyncTask is still running.");
+            throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
         }
         $echoedPid = (int) $echoedPid;
         return $this->lastKnownPID === $echoedPid;
