@@ -104,62 +104,41 @@ class AsyncTaskStatus
     {
         // find the runner in the system
         // we might have multiple PIDs; in this case, pick the first one that appears
+        /*
+         * note: while the OS may allow reading multiple properties at the same time,
+         * we won't risk it because localizations might produce unexpected strings or unusual separators
+         * an example would be CJK potentially having an alternate character to replace ":"
+         */
         if (OsInfo::isWindows()) {
             // Windows uses GCIM to discover processes
             $results = [];
             $encodedTaskID = $this->getEncodedTaskID();
-            // we don't know whether we are in cmd or powershell, so we do this
-            // powershell allows inputting base64-encoded commands
-            // note: while powershell gcim allows reading everything in the same run, we cannot risk this since localizations might mess with string splitting
-            // things like CJK ":" will already break this.
-            $tmpPsCmd = "Get-CimInstance Win32_Process -Filter \"CommandLine LIKE '%id=\'$encodedTaskID\'%'\" | Select ProcessId | Format-List";
-            $tmpEncoded = base64_encode($tmpPsCmd);
-            $status = exec("powershell -EncodedCommand $tmpEncoded", $results);
-            if (!$status) {
-                throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
-            }
-            // the way it works, it prints out many lines, and some of them contain the PID that we are interested in
             $expectedCmdName = "artisan async:run";
-            foreach ($results as $possiblePid) {
-                if ($possiblePid == "") {
-                    // blank line
+            // we can assume we are in cmd, but wcim in cmd is deprecated, and the replacement gcim requires powershell
+            $results = [];
+            $fullCmd = "powershell echo \"\"(gcim Win32_Process -Filter \\\"CommandLine LIKE '%id=\'$encodedTaskID\'%'\\\").ProcessId\"\"";
+            \Illuminate\Support\Facades\Log::info($fullCmd);
+            exec("powershell echo \"\"(gcim Win32_Process -Filter \\\"CommandLine LIKE '%id=\'$encodedTaskID\'%'\\\").ProcessId\"\"", $results);
+            // will output many lines, each line being a PID
+            foreach ($results as $candidatePID) {
+                $candidatePID = (int) $candidatePID;
+                // then use gcim again to see the cmd args
+                $cmdArgs = exec("powershell echo \"\"(gcim Win32_Process -Filter \\\"ProcessId = $candidatePID\\\").CommandLine\"\"");
+                if ($cmdArgs === false) {
+                    throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
+                }
+                if (!str_contains($cmdArgs, $expectedCmdName)) {
+                    // not really
                     continue;
                 }
-                $candidatePID = (int) $possiblePid;
-                // then use gcim again to see the cmd args
-                $tmpPsCmd = "Get-CimInstance Win32_Process -Filter \"ProcessId = $candidatePID\" | Select CommandLine | Format-Wide";
-                $innerResults = [];
-                $status = exec("powershell -Command $tmpPsCmd", $innerResults);
-                if (!$status) {
+                $executable = exec("powershell echo \"\"(gcim Win32_Process -Filter \\\"ProcessId = $candidatePID\\\").Name\"\"");
+                if ($executable === false) {
                     throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
                 }
-                foreach ($innerResults as $cmdArgs) {
-                    if ($cmdArgs == "") {
-                        // blank line
-                        continue;
-                    }
-                    if (!str_contains($cmdArgs, $expectedCmdName)) {
-                        // not this PID!
-                        continue 2;
-                    }
-                }
-                // then use gcim again to see the task runner
-                $tmpPsCmd = "Get-CimInstance Win32_Process -Filter \"ProcessId = $candidatePID\" | Select ProcessName | Format-Wide";
-                $innerResults = [];
-                exec("powershell -Command $tmpPsCmd", $innerResults);
-                if (!$status) {
-                    throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
-                }
-                foreach ($innerResults as $executableName) {
-                    if ($executableName == "") {
-                        // blank line
-                        continue;
-                    }
-                    if ($executableName != "php.exe") {
-                        // wrong process
-                        // note: we currently hard-code "php.exe" as the executable name
-                        continue 2;
-                    }
+                if ($executable !== "php.exe") {
+                    // not really
+                    // note: we currently hard-code "php" as the executable name
+                    continue;
                 }
                 // all checks passed; it is this one
                 $this->lastKnownPID = $candidatePID;
@@ -211,20 +190,11 @@ class AsyncTaskStatus
         // supposedly, the PID has not rolled over yet, right...?
         if (OsInfo::isWindows()) {
             // Windows uses GCIM to discover processes
-            $results = [];
-            $tmpPsCmd = "Get-CimInstance Win32_Process -Filter \"CommandLine LIKE '%id=\'{$this->lastKnownPID}\'%'\" | Select ProcessId | Format-List";
-            $status = exec("powershell -Command $tmpPsCmd", $results);
-            if (!$status) {
+            $echoedPid = exec("powershell echo \"\"(gcim Win32_Process -Filter \\\"ProcessId = {$this->lastKnownPID}\\\").ProcessId\"\"");
+            if ($echoedPid === false) {
                 throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
             }
-            // extract the PID
-            $echoedPid = null;
-            foreach ($results as $possiblePid) {
-                if ($possiblePid == "") {
-                    continue;
-                }
-                $echoedPid = (int) $possiblePid;
-            }
+            $echoedPid = (int) $echoedPid;
             return $this->lastKnownPID === $echoedPid;
         }
         // assume anything not Windows to be Unix
