@@ -247,7 +247,10 @@ class AsyncTaskTest extends BaseTestCase
         // now we start running the task
         $liveStatus = $task->start();
 
-        // the task is to sleep for 2 seconds, and then exit.
+        // try to sleep a bit, to stabilize the test case
+        sleep(1);
+
+        // the task is to sleep for some time, and then exit.
         // note: since checking the task statuses take some time, we cannot confirm the actual elapsed time of our tests,
         // and so "task ended" case is not testable
         $this->assertFalse($preStatus->isRunning(), "Stopped tasks should always report \"task stopped\".");
