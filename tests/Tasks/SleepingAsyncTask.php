@@ -6,7 +6,7 @@ use Vectorial1024\LaravelProcessAsync\AsyncTaskInterface;
 
 class SleepingAsyncTask implements AsyncTaskInterface
 {
-    // just sleeps for 2 seconds, and finish
+    // just sleeps for 5 seconds, and finish
 
     public function __construct()
     {
@@ -14,7 +14,7 @@ class SleepingAsyncTask implements AsyncTaskInterface
 
     public function execute(): void
     {
-        sleep(2);
+        sleep(5);
     }
 
     public function handleTimeout(): void
