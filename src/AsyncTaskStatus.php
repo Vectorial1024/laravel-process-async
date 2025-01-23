@@ -63,7 +63,9 @@ class AsyncTaskStatus
     }
 
     /**
-     * Checks and returns whether the AsyncTask is still running. This may take a bit of time.
+     * Checks and returns whether the AsyncTask is still running.
+     * 
+     * On Windows, this may take some time due to underlying bottlenecks.
      * 
      * Note: when this method detects that the task has stopped running, it will not recheck whether the task has restarted.
      * Use a fresh status object to track the (restarted) task.
