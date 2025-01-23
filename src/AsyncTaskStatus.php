@@ -189,8 +189,8 @@ class AsyncTaskStatus
         // since we should have remembered the PID, we can just query whether it still exists
         // supposedly, the PID has not rolled over yet, right...?
         if (OsInfo::isWindows()) {
-            // Windows uses GCIM to discover processes
-            $echoedPid = exec("powershell echo \"\"(gcim Win32_Process -Filter \\\"ProcessId = {$this->lastKnownPID}\\\").ProcessId\"\"");
+            // Windows can also use Get-Process to probe processes
+            $echoedPid = exec("powershell (Get-Process -id {$this->lastKnownPID}).Id");
             if ($echoedPid === false) {
                 throw new RuntimeException(self::MSG_CANNOT_CHECK_STATUS);
             }
