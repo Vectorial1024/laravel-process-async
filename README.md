@@ -108,7 +108,7 @@ $taskID = $status->taskID;
 $status->isRunning();
 
 // when task IDs are known, task status objects can be recreated on-the-fly
-$anotherStatus = new AsyncTaskStatus();
+$anotherStatus = new AsyncTaskStatus("customTaskID");
 ```
 
 Some tips:
