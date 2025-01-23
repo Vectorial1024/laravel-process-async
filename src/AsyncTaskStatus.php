@@ -83,7 +83,7 @@ class AsyncTaskStatus
     }
 
     /**
-     * Attepts to prove whether the AsyncTask is still running
+     * Attempts to prove whether the AsyncTask is still running
      * @return bool If false, then the task is shown to have been stopped.
      */
     private function proveTaskIsRunning(): bool
