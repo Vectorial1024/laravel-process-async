@@ -248,7 +248,7 @@ class AsyncTaskTest extends BaseTestCase
         $liveStatus = $task->start();
 
         // try to sleep a bit, to stabilize the test case
-        sleep(1);
+        $this->sleep(0.1);
 
         // the task is to sleep for some time, and then exit.
         // note: since checking the task statuses take some time, we cannot confirm the actual elapsed time of our tests,
