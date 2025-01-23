@@ -89,6 +89,33 @@ Some tips:
   - Use short but frequent sleeps instead.
 - Avoid using `SIGINT`! On Unix, this signal is reserved for timeout detection. 
 
+### Task IDs
+You can assign task IDs to tasks before they are run, but you cannot change them after the tasks are started. This allows you to track the statuses of long-running tasks across web requests.
+
+By default, if a task does not has its user-specified task ID when starting, a ULID will be generated as its task ID.
+
+```php
+// create a task with a specified task ID...
+$task = new AsyncTask(function () {}, "customTaskID");
+
+// will return a status object for immediate checking...
+$status = $task->start();
+
+// in case the task ID was not given, what is the generated task ID?
+$taskID = $status->taskID;
+
+// is that task still running?
+$status->isRunning();
+
+// when task IDs are known, task status objects can be recreated on-the-fly
+$anotherStatus = new AsyncTaskStatus();
+```
+
+Some tips:
+- Task IDs can be optional (i.e. `null`) but CANNOT be blank (i.e. `""`)!
+- If multiple tasks are started with the same task ID, then the task status object will only track the first task that was started
+- Known issue: on Windows, checking task statuses can be slow (about 0.5 - 1 seconds) due to underlying bottlenecks
+
 ## Testing
 PHPUnit via Composer script:
 ```sh
