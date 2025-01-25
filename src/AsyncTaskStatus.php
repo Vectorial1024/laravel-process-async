@@ -153,7 +153,9 @@ class AsyncTaskStatus
         $results = [];
         $encodedTaskID = $this->getEncodedTaskID();
         exec("pgrep -f id='$encodedTaskID'", $results);
-        // supposedly there should be only 1 entry, but anyway
+        // we may find multiple records here if we are using timeouts
+        // this is because there will be one parent timeout process and another actual child artisan process
+        // we want the child artisan process
         $expectedCmdName = "artisan async:run";
         foreach ($results as $candidatePID) {
             $candidatePID = (int) $candidatePID;
