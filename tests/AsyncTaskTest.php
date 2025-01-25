@@ -258,4 +258,29 @@ class AsyncTaskTest extends BaseTestCase
         $this->assertFalse($preStatus->isRunning(), "Stopped tasks should always report \"task stopped\".");
         $this->assertTrue($liveStatus->isRunning(), "Recently-started task does not report \"task running\".");
     }
+
+    public function testAsyncTaskStatusWithTimeLimit()
+    {
+        // test that the task status reading is correct, even if we are using a time limit
+        $taskID = "timeoutTestingTask";
+        $task = new AsyncTask(new SleepingAsyncTask(), taskID: $taskID);
+
+        // we haven't started yet, so this should say false 
+        $preStatus = new AsyncTaskStatus($taskID);
+        $this->assertFalse($preStatus->isRunning());
+        // note: since it detects false, it will always continue to say false
+        $this->assertFalse($preStatus->isRunning());
+
+        // now we start running the task
+        $liveStatus = $task->withTimeLimit(4)->start();
+
+        // try to sleep a bit, to stabilize the test case
+        $this->sleep(0.1);
+
+        // the task is to sleep for some time, and then exit.
+        // note: since checking the task statuses take some time, we cannot confirm the actual elapsed time of our tests,
+        // and so "task ended" case is not testable
+        $this->assertFalse($preStatus->isRunning(), "Stopped tasks should always report \"task stopped\".");
+        $this->assertTrue($liveStatus->isRunning(), "Recently-started task does not report \"task running\".");
+    }
 }
