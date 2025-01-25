@@ -222,6 +222,8 @@ class AsyncTaskTest extends BaseTestCase
         // has ID is also ok
         $task = new AsyncTask(new SleepingAsyncTask(), taskID: "yeah");
         unset($task);
+        $taskStatus = new AsyncTaskStatus("yeah");
+        unset($taskStatus);
 
         // but blank ID is not allowed
         $this->expectException(InvalidArgumentException::class);
