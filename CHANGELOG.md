@@ -2,6 +2,8 @@
 Note: you may refer to `README.md` for description of features.
 
 ## Dev (WIP)
+
+## 0.3.0 (2025-01-26)
 - Task IDs can be given to tasks (generated or not) (https://github.com/Vectorial1024/laravel-process-async/issues/5)
 - Updated to use `opis/closure` 4.0 for task details serialization (https://github.com/Vectorial1024/laravel-process-async/issues/12)
   - Technically a breaking internal change, but no code change expected and downtime is expected to be almost negligible
