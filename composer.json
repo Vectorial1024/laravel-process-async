@@ -1,6 +1,6 @@
 {
     "name": "vectorial1024/laravel-process-async",
-    "description": "Utilize Laravel Process to run PHP code asynchronously.",
+    "description": "Utilize Laravel Process to run PHP code asynchronously, as if using Laravel Concurrency.",
     "keywords": [
         "laravel",
         "background",

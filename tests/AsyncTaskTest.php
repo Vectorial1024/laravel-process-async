@@ -2,10 +2,13 @@
 
 namespace Vectorial1024\LaravelProcessAsync\Tests;
 
+use InvalidArgumentException;
 use LogicException;
 use RuntimeException;
 use Vectorial1024\LaravelProcessAsync\AsyncTask;
+use Vectorial1024\LaravelProcessAsync\AsyncTaskStatus;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\DummyAsyncTask;
+use Vectorial1024\LaravelProcessAsync\Tests\Tasks\SleepingAsyncTask;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutENoticeTask;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutErrorTask;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutNoOpTask;
@@ -21,10 +24,7 @@ class AsyncTaskTest extends BaseTestCase
         $testFileName = $this->getStoragePath("testClosure.txt");
         $message = "Hello world!";
         $task = new AsyncTask(function () use ($testFileName, $message) {
-            $fp = fopen($testFileName, "w");
-            fwrite($fp, $message);
-            fflush($fp);
-            fclose($fp);
+            file_put_contents($testFileName, $message);
         });
         $task->run();
 
@@ -85,10 +85,7 @@ class AsyncTaskTest extends BaseTestCase
         @unlink($testFileName);
         $message = "Hello world!";
         $task = new AsyncTask(function () use ($testFileName, $message) {
-            $fp = fopen($testFileName, "w");
-            fwrite($fp, $message);
-            fflush($fp);
-            fclose($fp);
+            file_put_contents($testFileName, $message);
         });
         $task->start();
 
@@ -144,7 +141,12 @@ class AsyncTaskTest extends BaseTestCase
         $task = new AsyncTask($timeoutTask);
         $task->withTimeLimit(1)->start();
         // we wait for it to timeout
-        $this->sleep(2);
+        $this->sleep(0.3);
+        $this->sleep(0.3);
+        $this->sleep(0.3);
+        $this->sleep(0.3);
+        $this->sleep(0.3);
+        $this->sleep(0.3);
         // should have timed out
         $this->assertFileExists($textFilePath, "The async task probably did not trigger its timeout handler because its timeout output file is not found.");
         $this->assertStringEqualsFile($textFilePath, $message);
@@ -207,5 +209,78 @@ class AsyncTaskTest extends BaseTestCase
         // should have timed out
         $this->assertFileDoesNotExist($textFilePath, "The async task timeout handler was inappropriately triggered (E_NOTICE should not trigger timeouts).");
         $this->assertNoNohupFile();
+    }
+
+    public function testAsyncTaskID()
+    {
+        // test that we can correctly handle good and bad task IDs
+
+        // no ID is ok
+        $task = new AsyncTask(new SleepingAsyncTask());
+        unset($task);
+
+        // has ID is also ok
+        $task = new AsyncTask(new SleepingAsyncTask(), taskID: "yeah");
+        unset($task);
+        $taskStatus = new AsyncTaskStatus("yeah");
+        unset($taskStatus);
+
+        // but blank ID is not allowed
+        $this->expectException(InvalidArgumentException::class);
+        $task = new AsyncTask(new SleepingAsyncTask(), taskID: "");
+        unset($task);
+        $this->expectException(InvalidArgumentException::class);
+        $taskStatus = new AsyncTaskStatus("");
+        unset($taskStatus);
+    }
+
+    public function testAsyncTaskNormalStatus()
+    {
+        // test that the task status reading is correct
+        $taskID = "testingTask";
+        $task = new AsyncTask(new SleepingAsyncTask(), taskID: $taskID);
+
+        // we haven't started yet, so this should say false 
+        $preStatus = new AsyncTaskStatus($taskID);
+        $this->assertFalse($preStatus->isRunning());
+        // note: since it detects false, it will always continue to say false
+        $this->assertFalse($preStatus->isRunning());
+
+        // now we start running the task
+        $liveStatus = $task->start();
+
+        // try to sleep a bit, to stabilize the test case
+        $this->sleep(0.1);
+
+        // the task is to sleep for some time, and then exit.
+        // note: since checking the task statuses take some time, we cannot confirm the actual elapsed time of our tests,
+        // and so "task ended" case is not testable
+        $this->assertFalse($preStatus->isRunning(), "Stopped tasks should always report \"task stopped\".");
+        $this->assertTrue($liveStatus->isRunning(), "Recently-started task does not report \"task running\".");
+    }
+
+    public function testAsyncTaskStatusWithTimeLimit()
+    {
+        // test that the task status reading is correct, even if we are using a time limit
+        $taskID = "timeoutTestingTask";
+        $task = new AsyncTask(new SleepingAsyncTask(), taskID: $taskID);
+
+        // we haven't started yet, so this should say false 
+        $preStatus = new AsyncTaskStatus($taskID);
+        $this->assertFalse($preStatus->isRunning());
+        // note: since it detects false, it will always continue to say false
+        $this->assertFalse($preStatus->isRunning());
+
+        // now we start running the task
+        $liveStatus = $task->withTimeLimit(4)->start();
+
+        // try to sleep a bit, to stabilize the test case
+        $this->sleep(0.1);
+
+        // the task is to sleep for some time, and then exit.
+        // note: since checking the task statuses take some time, we cannot confirm the actual elapsed time of our tests,
+        // and so "task ended" case is not testable
+        $this->assertFalse($preStatus->isRunning(), "Stopped tasks should always report \"task stopped\".");
+        $this->assertTrue($liveStatus->isRunning(), "Recently-started task does not report \"task running\".");
     }
 }

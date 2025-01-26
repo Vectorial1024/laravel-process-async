@@ -5,7 +5,7 @@
 [![PHP Dependency Version][php-version-image]][packagist-url]
 [![GitHub Repo Stars][github-stars-image]][github-repo-url]
 
-Utilize Laravel Processes to run PHP code asynchronously.
+Utilize Laravel Processes to run PHP code asynchronously, as if using Laravel Concurrency.
 
 ## What really is this?
 [Laravel Processes](https://laravel.com/docs/10.x/processes) was first introduced in Laravel 10. This library wraps around `Process::start()` to let you execute code in the background to achieve async, albeit with some caveats:
@@ -45,7 +45,7 @@ If you are on Unix, check that you also have the following:
 ## Change log
 Please see `CHANGELOG.md`.
 
-## Example code
+## Example code and features
 Tasks can be defined as PHP closures, or (recommended) as an instance of a class that implements `AsyncTaskInterface`.
 
 A very simple example task to write Hello World to a file:
@@ -54,10 +54,7 @@ A very simple example task to write Hello World to a file:
 // define the task...
 $target = "document.txt";
 $task = new AsyncTask(function () use ($target) {
-    $fp = fopen($target, "w");
-    fwrite($fp, "Hello World!!");
-    fflush($fp);
-    fclose($fp);
+    file_put_contents($target, "Hello World!");
 });
 
 // if you are using interfaces, then it is just like this:
@@ -86,6 +83,38 @@ $task->withTimeLimit(15)->start();
 // ...or not have any limits at all (beware of orphaned processes!)
 $task->withoutTimeLimit()->start();
 ```
+
+Some tips:
+- Don't sleep too long! On Windows, timeout handlers cannot trigger while your task is sleeping.
+  - Use short but frequent sleeps instead.
+- Avoid using `SIGINT`! On Unix, this signal is reserved for timeout detection. 
+
+### Task IDs
+You can assign task IDs to tasks before they are run, but you cannot change them after the tasks are started. This allows you to track the statuses of long-running tasks across web requests.
+
+By default, if a task does not has its user-specified task ID when starting, a ULID will be generated as its task ID.
+
+```php
+// create a task with a specified task ID...
+$task = new AsyncTask(function () {}, "customTaskID");
+
+// will return a status object for immediate checking...
+$status = $task->start();
+
+// in case the task ID was not given, what is the generated task ID?
+$taskID = $status->taskID;
+
+// is that task still running?
+$status->isRunning();
+
+// when task IDs are known, task status objects can be recreated on-the-fly
+$anotherStatus = new AsyncTaskStatus("customTaskID");
+```
+
+Some tips:
+- Task IDs can be optional (i.e. `null`) but CANNOT be blank (i.e. `""`)!
+- If multiple tasks are started with the same task ID, then the task status object will only track the first task that was started
+- Known issue: on Windows, checking task statuses can be slow (about 0.5 - 1 seconds) due to underlying bottlenecks
 
 ## Testing
 PHPUnit via Composer script:

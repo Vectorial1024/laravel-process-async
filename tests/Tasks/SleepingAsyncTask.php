@@ -4,19 +4,17 @@ namespace Vectorial1024\LaravelProcessAsync\Tests\Tasks;
 
 use Vectorial1024\LaravelProcessAsync\AsyncTaskInterface;
 
-class DummyAsyncTask implements AsyncTaskInterface
+class SleepingAsyncTask implements AsyncTaskInterface
 {
-    // write a message to a file
+    // just sleeps for 5 seconds, and finish
 
-    public function __construct(
-        private string $message,
-        private string $targetFilePath
-    ) {
+    public function __construct()
+    {
     }
 
     public function execute(): void
     {
-        file_put_contents($this->targetFilePath, $this->message);
+        sleep(5);
     }
 
     public function handleTimeout(): void
