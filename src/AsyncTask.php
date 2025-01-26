@@ -9,7 +9,6 @@ use Illuminate\Process\InvokedProcess;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use Laravel\SerializableClosure\SerializableClosure;
 use LogicException;
 use loophp\phposinfo\OsInfo;
 use RuntimeException;
