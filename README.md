@@ -10,7 +10,7 @@ Utilize Laravel Processes to run PHP code asynchronously, as if using Laravel Co
 ## What really is this?
 [Laravel Processes](https://laravel.com/docs/10.x/processes) was first introduced in Laravel 10. This library wraps around `Process::start()` to let you execute code in the background to achieve async, albeit with some caveats:
 - You may only execute PHP code
-- Restrictions from `laravel/serializable-closure` apply (see [their README](https://github.com/laravel/serializable-closure))
+- Restrictions from `opis/closure` apply (see [their README](https://github.com/opis/closure))
 - Hands-off execution: no built-in result-checking, check the results yourself (e.g. via database, file cache, etc)
 
 This library internally uses an Artisan command to run the async code, which is similar to Laravel 11 [Concurrency](https://laravel.com/docs/11.x/concurrency).

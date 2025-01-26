@@ -9,10 +9,11 @@ use Illuminate\Process\InvokedProcess;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use Laravel\SerializableClosure\SerializableClosure;
 use LogicException;
 use loophp\phposinfo\OsInfo;
 use RuntimeException;
+
+use function Opis\Closure\{serialize, unserialize};
 
 /**
  * The common handler of an AsyncTask; this can be a closure (will be wrapped inside AsyncTask) or an interface instance.
@@ -21,9 +22,9 @@ class AsyncTask
 {
     /**
      * The task to be executed in the background.
-     * @var SerializableClosure|AsyncTaskInterface
+     * @var Closure|AsyncTaskInterface
      */
-    private SerializableClosure|AsyncTaskInterface $theTask;
+    private Closure|AsyncTaskInterface $theTask;
 
     /**
      * The user-specified ID of the current task. (Null means user did not specify any ID).
@@ -105,15 +106,29 @@ class AsyncTask
      */
     public function __construct(Closure|AsyncTaskInterface $theTask, string|null $taskID = null)
     {
-        if ($theTask instanceof Closure) {
-            // convert to serializable closure first
-            $theTask = new SerializableClosure($theTask);
-        }
+        // opis/closure allows direct storage of closure
         $this->theTask = $theTask;
         if ($taskID === "") {
             throw new InvalidArgumentException("AsyncTask ID cannot be empty.");
         }
         $this->taskID = $taskID;
+    }
+
+    public function __serialize(): array
+    {
+        // serialize only the necessary info to reduce runner cmd length
+        return [
+            'theTask' => $this->theTask,
+            'timeLimit' => $this->timeLimit,
+        ];
+    }
+
+    public function __unserialize($data): void
+    {
+        [
+            'theTask' => $this->theTask,
+            'timeLimit' => $this->timeLimit,
+        ] = $data;
     }
 
     /**
@@ -159,10 +174,8 @@ class AsyncTask
         }
 
         // then, execute the task itself
-        if ($this->theTask instanceof SerializableClosure) {
-            $innerClosure = $this->theTask->getClosure();
-            $innerClosure();
-            unset($innerClosure);
+        if ($this->theTask instanceof Closure) {
+            ($this->theTask)();
         } else {
             // must be AsyncTaskInterface
             $this->theTask->execute();
