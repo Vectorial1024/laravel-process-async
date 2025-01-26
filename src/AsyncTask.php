@@ -7,6 +7,8 @@ namespace Vectorial1024\LaravelProcessAsync;
 use Closure;
 use Illuminate\Process\InvokedProcess;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Laravel\SerializableClosure\SerializableClosure;
 use LogicException;
 use loophp\phposinfo\OsInfo;
@@ -22,6 +24,14 @@ class AsyncTask
      * @var SerializableClosure|AsyncTaskInterface
      */
     private SerializableClosure|AsyncTaskInterface $theTask;
+
+    /**
+     * The user-specified ID of the current task. (Null means user did not specify any ID).
+     * 
+     * If null, the task will generate an unsaved random ID when it is started.
+     * @var string|null
+     */
+    private string|null $taskID;
 
     /**
      * The process that is actually running this task. Tasks that are not started will have null here.
@@ -91,14 +101,19 @@ class AsyncTask
     /**
      * Creates an AsyncTask instance.
      * @param Closure|AsyncTaskInterface $theTask The task to be executed in the background.
+     * @param string|null $taskID (optional) The user-specified task ID of this AsyncTask. Should be unique.
      */
-    public function __construct(Closure|AsyncTaskInterface $theTask)
+    public function __construct(Closure|AsyncTaskInterface $theTask, string|null $taskID = null)
     {
         if ($theTask instanceof Closure) {
             // convert to serializable closure first
             $theTask = new SerializableClosure($theTask);
         }
         $this->theTask = $theTask;
+        if ($taskID === "") {
+            throw new InvalidArgumentException("AsyncTask ID cannot be empty.");
+        }
+        $this->taskID = $taskID;
     }
 
     /**
@@ -159,13 +174,18 @@ class AsyncTask
 
     /**
      * Starts this AsyncTask immediately in the background. A runner will then run this AsyncTask.
-     * @return void
+     * @return AsyncTaskStatus The status object for the started AsyncTask.
      */
-    public function start(): void
+    public function start(): AsyncTaskStatus
     {
+        // prepare the task details
+        $taskID = $this->taskID ?? Str::ulid()->toString();
+        $taskStatus = new AsyncTaskStatus($taskID);
+
         // prepare the runner command
         $serializedTask = $this->toBase64Serial();
-        $baseCommand = "php artisan async:run $serializedTask";
+        $encodedTaskID = $taskStatus->getEncodedTaskID();
+        $baseCommand = "php artisan async:run $serializedTask --id='$encodedTaskID'";
 
         // then, specific actions depending on the runtime OS
         if (OsInfo::isWindows()) {
@@ -173,7 +193,7 @@ class AsyncTask
             // but we require cmd (ps won't work here), so might as well force cmd like this
             // windows has real max time limit
             $this->runnerProcess = Process::quietly()->start("cmd >nul 2>nul /c start /b $baseCommand");
-            return;
+            return $taskStatus;
         }
         // assume anything not windows to be unix
         // unix use nohup
@@ -197,6 +217,7 @@ class AsyncTask
             $timeoutClause = static::$timeoutCmdName . " -s 2 {$this->timeLimit}";
         }
         $this->runnerProcess = Process::quietly()->start("nohup $timeoutClause $baseCommand >/dev/null 2>&1");
+        return $taskStatus;
     }
 
     /**

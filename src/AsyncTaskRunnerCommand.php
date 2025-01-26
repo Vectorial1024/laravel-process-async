@@ -14,7 +14,7 @@ class AsyncTaskRunnerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'async:run {task}';
+    protected $signature = 'async:run {task} {--id=}';
 
     /**
      * The console command description.
