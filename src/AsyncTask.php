@@ -129,7 +129,6 @@ class AsyncTask
             'theTask' => $this->theTask,
             'timeLimit' => $this->timeLimit,
         ] = $data;
-        // $this->theTask = unserialize($tempTask);
     }
 
     /**
