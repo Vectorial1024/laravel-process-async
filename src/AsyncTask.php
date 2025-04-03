@@ -32,7 +32,7 @@ class AsyncTask
      * If null, the task will generate an unsaved random ID when it is started.
      * @var string|null
      */
-    protected string|null $taskID;
+    private string|null $taskID;
 
     /**
      * The process that is actually running this task. Tasks that are not started will have null here.
@@ -132,6 +132,18 @@ class AsyncTask
     }
 
     /**
+     * Returns a status object for the started AsyncTask.
+     * 
+     * If this task does not have an explicit task ID, a new one will be generated on-the-fly.
+     * @return AsyncTaskStatus The status object for the started AsyncTask.
+     */
+    protected function getTaskStatusObject(): AsyncTaskStatus 
+    {
+        $taskID = $this->taskID ?? Str::ulid()->toString();
+        return new AsyncTaskStatus($taskID);
+    }
+
+    /**
      * Inside an available PHP process, runs this AsyncTask instance.
      * 
      * This should only be called from the runner so that we are really inside an available PHP process.
@@ -192,8 +204,7 @@ class AsyncTask
     public function start(): AsyncTaskStatus
     {
         // prepare the task details
-        $taskID = $this->taskID ?? Str::ulid()->toString();
-        $taskStatus = new AsyncTaskStatus($taskID);
+        $taskStatus = $this->getTaskStatusObject();
 
         // prepare the runner command
         $serializedTask = $this->toBase64Serial();

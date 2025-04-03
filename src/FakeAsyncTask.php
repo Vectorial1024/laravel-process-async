@@ -49,7 +49,6 @@ class FakeAsyncTask extends AsyncTask
     public function start(): AsyncTaskStatus
     {
         // todo fake version
-        $taskID = $this->taskID ?? Str::ulid()->toString();
-        return new AsyncTaskStatus($taskID);
+        return $this->getTaskStatusObject();
     }
 }
