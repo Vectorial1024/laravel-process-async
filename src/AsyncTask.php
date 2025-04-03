@@ -32,7 +32,7 @@ class AsyncTask
      * If null, the task will generate an unsaved random ID when it is started.
      * @var string|null
      */
-    private string|null $taskID;
+    protected string|null $taskID;
 
     /**
      * The process that is actually running this task. Tasks that are not started will have null here.
