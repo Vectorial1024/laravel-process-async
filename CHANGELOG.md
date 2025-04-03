@@ -2,6 +2,7 @@
 Note: you may refer to `README.md` for description of features.
 
 ## Dev (WIP)
+- Compatibility with Laravel 12
 
 ## 0.3.0 (2025-01-26)
 - Task IDs can be given to tasks (generated or not) (https://github.com/Vectorial1024/laravel-process-async/issues/5)
