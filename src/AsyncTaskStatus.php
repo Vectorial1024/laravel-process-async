@@ -51,6 +51,15 @@ class AsyncTaskStatus
     }
 
     /**
+     * Returns an instance of a fake status object with the same task ID.
+     * @return FakeAsyncTaskStatus The fake AsyncTaskStatus object for testing.
+     */
+    public function fake(): FakeAsyncTaskStatus
+    {
+        return new FakeAsyncTaskStatus($this->taskID);
+    }
+
+    /**
      * Returns the task ID encoded in base64, mainly for result checking.
      * @return string The encoded task ID.
      */
