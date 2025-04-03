@@ -1,4 +1,4 @@
-name: PHP Composer (MacOS; Laravel 12)
+name: MacOS (Laravel 12, PHP 8.3)
 
 on:
   push:

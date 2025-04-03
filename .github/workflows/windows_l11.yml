@@ -1,4 +1,4 @@
-name: PHP Composer (Windows; Laravel 11)
+name: Windows (Laravel 11, PHP 8.2)
 
 on:
   push:

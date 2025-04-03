@@ -1,4 +1,4 @@
-name: PHP Composer (Ubuntu; Laravel 12)
+name: Ubuntu (Laravel 12, PHP 8.3)
 
 on:
   push:
