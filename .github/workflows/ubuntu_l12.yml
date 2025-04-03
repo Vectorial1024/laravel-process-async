@@ -1,4 +1,4 @@
-name: Ubuntu (Laravel 11, PHP 8.2)
+name: Ubuntu (Laravel 12, PHP 8.3)
 
 on:
   push:
@@ -12,18 +12,18 @@ permissions:
 jobs:
   build:
 
-    # no ubuntu runner has explicit PHP 8.2 support
+    # right now, ubuntu-latest has explicit PHP 8.3 support
     # see https://github.com/marketplace/actions/setup-php-action
-    # specify PHP 8.2 to test Laravel 11
+    # specify PHP 8.3 to test Laravel 12
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup PHP with PECL extension
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
+    # - name: Setup PHP with PECL extension
+    #   uses: shivammathur/setup-php@v2
+    #   with:
+    #     php-version: '8.3'
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict

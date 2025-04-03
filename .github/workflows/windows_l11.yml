@@ -1,4 +1,4 @@
-name: PHP Composer (Windows; Laravel 11)
+name: Windows (Laravel 11, PHP 8.2)
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
 
     # no windows runner has explicit PHP 8.2 support
     # see https://github.com/marketplace/actions/setup-php-action
-    # specify PHP 8.2 to test Laravel 10
+    # specify PHP 8.2 to test Laravel 11
     runs-on: windows-latest
 
     steps:
