@@ -1,4 +1,4 @@
-name: PHP Composer (Windows; Laravel 11)
+name: PHP Composer (Windows; Laravel 12)
 
 on:
   push:
@@ -12,9 +12,10 @@ permissions:
 jobs:
   build:
 
-    # no windows runner has explicit PHP 8.2 support
+    # all windows runners have explicit PHP 8.3 support
+    # but we need some extra extensions, so we still need the setup action
     # see https://github.com/marketplace/actions/setup-php-action
-    # specify PHP 8.2 to test Laravel 11
+    # specify PHP 8.3 to test Laravel 12
     runs-on: windows-latest
 
     steps:
@@ -23,7 +24,7 @@ jobs:
     - name: Setup PHP with PECL extension
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
+        php-version: '8.3'
         extensions: fileinfo
 
     - name: Validate composer.json and composer.lock

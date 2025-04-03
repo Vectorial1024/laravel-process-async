@@ -1,4 +1,4 @@
-name: PHP Composer (Windows; Laravel 11)
+name: PHP Composer (MacOS; Laravel 12)
 
 on:
   push:
@@ -12,10 +12,10 @@ permissions:
 jobs:
   build:
 
-    # no windows runner has explicit PHP 8.2 support
+    # no macos runner has explicit PHP 8.3 support
     # see https://github.com/marketplace/actions/setup-php-action
-    # specify PHP 8.2 to test Laravel 11
-    runs-on: windows-latest
+    # specify PHP 8.3 to test Laravel 12
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -23,8 +23,10 @@ jobs:
     - name: Setup PHP with PECL extension
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
-        extensions: fileinfo
+        php-version: '8.3'
+
+    - name: "Homebrew: Install GNU Core Utilities"
+      run: yes | brew install coreutils
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
