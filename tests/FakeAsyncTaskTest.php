@@ -2,18 +2,10 @@
 
 namespace Vectorial1024\LaravelProcessAsync\Tests;
 
-use InvalidArgumentException;
-use LogicException;
-use RuntimeException;
 use Vectorial1024\LaravelProcessAsync\AsyncTask;
 use Vectorial1024\LaravelProcessAsync\AsyncTaskStatus;
-use Vectorial1024\LaravelProcessAsync\FakeAsyncTaskStatus;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\DummyAsyncTask;
-use Vectorial1024\LaravelProcessAsync\Tests\Tasks\SleepingAsyncTask;
-use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutENoticeTask;
-use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutErrorTask;
-use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutNoOpTask;
-use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutNormalTask;
+use Vectorial1024\LaravelProcessAsync\FakeAsyncTaskStatus;
 
 // a series of tests that ensure the fake tasks are indeed fake while still look like the same
 class FakeAsyncTaskTest extends BaseTestCase

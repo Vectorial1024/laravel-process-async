@@ -5,15 +5,6 @@ declare(strict_types=1);
 namespace Vectorial1024\LaravelProcessAsync;
 
 use Closure;
-use Illuminate\Process\InvokedProcess;
-use Illuminate\Support\Facades\Process;
-use Illuminate\Support\Str;
-use InvalidArgumentException;
-use LogicException;
-use loophp\phposinfo\OsInfo;
-use RuntimeException;
-
-use function Opis\Closure\{serialize, unserialize};
 
 /**
  * The fake AsyncTask class for testing.

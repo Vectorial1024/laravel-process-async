@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Vectorial1024\LaravelProcessAsync;
 
-use InvalidArgumentException;
-use loophp\phposinfo\OsInfo;
-use RuntimeException;
-
 /**
  * The fake AsyncTaskStatus class for testing. Fake async tasks are presumed to be running by default.
  */
@@ -32,5 +28,14 @@ class FakeAsyncTaskStatus extends AsyncTaskStatus
         return $this->fakeIsRunning;
     }
 
-
+    /**
+     * Force the fake task to become stopped.
+     * 
+     * Note: once stopped, the fake async task cannot be made running again. Use a new status object if the fake task needs to be restarted.
+     * @return void
+     */
+    public function fakeStopRunning(): void
+    {
+        $this->fakeIsRunning = false;
+    }
 }
