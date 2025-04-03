@@ -44,11 +44,10 @@ class FakeAsyncTask extends AsyncTask
 
     /**
      * Fakes the AsyncTask being started in the background, but does not actually start the task.
-     * @return AsyncTaskStatus The status object for the fake-started FakeAsyncTask.
+     * @return FakeAsyncTaskStatus The status object for the fake-started FakeAsyncTask.
      */
-    public function start(): AsyncTaskStatus
+    public function start(): FakeAsyncTaskStatus
     {
-        // todo fake version
-        return $this->getTaskStatusObject();
+        return $this->getTaskStatusObject()->fake();
     }
 }

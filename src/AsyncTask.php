@@ -114,6 +114,21 @@ class AsyncTask
         $this->taskID = $taskID;
     }
 
+    /**
+     * Returns an instance of a fake AsyncTask with the same task parameters and task ID.
+     * @return FakeAsyncTask The fake AsyncTask object for testing.
+     */
+    public function fake(): FakeAsyncTask
+    {
+        $fakeTask = new FakeAsyncTask($this->theTask, taskID: $this->taskID);
+        if ($this->getTimeLimit() === null) {
+            $fakeTask->withoutTimeLimit();
+        } else {
+            $fakeTask->withTimeLimit($this->timeLimit);
+        }
+        return $fakeTask;
+    }
+
     public function __serialize(): array
     {
         // serialize only the necessary info to reduce runner cmd length
