@@ -3,6 +3,7 @@
 namespace Vectorial1024\LaravelProcessAsync;
 
 use Illuminate\Console\Command;
+use Opis\Closure\Security\SecurityException;
 
 /**
  * The Artisan command to run AsyncTask. DO NOT USE DIRECTLY!
@@ -35,7 +36,13 @@ class AsyncTaskRunnerCommand extends Command
         // first, unpack the task
         // (Symfony already safeguards the "task" argument to make it required)
         $theTask = $this->argument('task');
-        $theTask = AsyncTask::fromBase64Serial($theTask);
+        try {
+            $theTask = AsyncTask::fromBase64Serial($theTask);
+        } catch (SecurityException $x) {
+            // bad secret key; cannot verify sender identity
+            $this->error("Unrecognized task giver is trying to start AsyncTaskRunner.");
+            return self::FAILURE;
+        }
         if ($theTask === null) {
             // bad underializing; probably bad data
             $this->error("Invalid task details!");
