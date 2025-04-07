@@ -13,7 +13,7 @@ use LogicException;
 use loophp\phposinfo\OsInfo;
 use RuntimeException;
 
-use function Opis\Closure\{serialize, unserialize};
+use function Opis\Closure\{init, serialize, unserialize};
 
 /**
  * The common handler of an AsyncTask; this can be a closure (will be wrapped inside AsyncTask) or an interface instance.
@@ -129,6 +129,22 @@ class AsyncTask
             'theTask' => $this->theTask,
             'timeLimit' => $this->timeLimit,
         ] = $data;
+    }
+
+    /**
+     * Loads the secret key used by this library.
+     * 
+     * Normally, this function does not need to be called by linrary users.
+     * @return void
+     */
+    public static function loadSecretKey(): void
+    {
+        // read from the env file for the secret key (if exists) to verify our identity
+        $secretKey = env("PROCESS_ASYNC_SECRET_KEY");
+        if ($secretKey != null && strlen($secretKey) > 0) {
+            // we can set the secret key
+            init($secretKey);
+        }
     }
 
     /**
