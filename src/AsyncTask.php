@@ -13,7 +13,9 @@ use LogicException;
 use loophp\phposinfo\OsInfo;
 use RuntimeException;
 
-use function Opis\Closure\{init, serialize, unserialize};
+use function Opis\Closure\init;
+use function Opis\Closure\serialize;
+use function Opis\Closure\unserialize;
 
 /**
  * The common handler of an AsyncTask; this can be a closure (will be wrapped inside AsyncTask) or an interface instance.
