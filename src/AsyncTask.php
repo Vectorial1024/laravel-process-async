@@ -15,6 +15,7 @@ use RuntimeException;
 
 use function Opis\Closure\init;
 use function Opis\Closure\serialize;
+use function Opis\Closure\set_security_provider;
 use function Opis\Closure\unserialize;
 
 /**
@@ -134,7 +135,7 @@ class AsyncTask
     }
 
     /**
-     * Loads the secret key used by this library.
+     * Loads (or reloads) the secret key used by this library.
      * 
      * Normally, this function does not need to be called by linrary users.
      * @return void
@@ -143,9 +144,13 @@ class AsyncTask
     {
         // read from the env file for the secret key (if exists) to verify our identity
         $secretKey = env("PROCESS_ASYNC_SECRET_KEY");
+        init(null);
         if ($secretKey != null && strlen($secretKey) > 0) {
             // we can set the secret key
-            init($secretKey);
+            set_security_provider($secretKey);
+        } else {
+            // no secret key given, clear the security
+            set_security_provider(null);
         }
     }
 
