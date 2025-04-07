@@ -23,6 +23,8 @@ class AsyncTaskRunnerCommand extends Command
      */
     protected $description = 'Runs a background async task (DO NOT USE DIRECTLY)';
 
+    protected $hidden = true;
+
     /**
      * Execute the console command.
      *
