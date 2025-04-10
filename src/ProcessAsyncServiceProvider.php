@@ -11,7 +11,8 @@ class ProcessAsyncServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // pass
+        // load/reset our secret key
+        AsyncTask::loadSecretKey();
     }
 
     /**

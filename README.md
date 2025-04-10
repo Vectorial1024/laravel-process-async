@@ -116,6 +116,19 @@ Some tips:
 - If multiple tasks are started with the same task ID, then the task status object will only track the first task that was started
 - Known issue: on Windows, checking task statuses can be slow (about 0.5 - 1 seconds) due to underlying bottlenecks
 
+### Securing the task runners
+The way this library works means that attackers (or other unwanted parties) may simply craft malicious commands that mimic legitimate usage of this library.
+
+To secure the task runners from being started illegitimately, you may configure the `.env` file to contain the following key:
+
+```
+PROCESS_ASYNC_SECRET_KEY=[your secret key here]
+```
+
+You may need to clear your Laravel optimisation cache after changing this value.
+
+The contents of the async tasks will be signed by this secret key, so that this library can know whether the tasks are started by this library itself or someone else.
+
 ## Testing
 PHPUnit via Composer script:
 ```sh

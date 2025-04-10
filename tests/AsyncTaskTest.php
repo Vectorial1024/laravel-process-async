@@ -4,6 +4,7 @@ namespace Vectorial1024\LaravelProcessAsync\Tests;
 
 use InvalidArgumentException;
 use LogicException;
+use Opis\Closure\Security\SecurityException;
 use RuntimeException;
 use Vectorial1024\LaravelProcessAsync\AsyncTask;
 use Vectorial1024\LaravelProcessAsync\AsyncTaskStatus;
@@ -13,10 +14,18 @@ use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutENoticeTask;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutErrorTask;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutNoOpTask;
 use Vectorial1024\LaravelProcessAsync\Tests\Tasks\TestTimeoutNormalTask;
+use function Opis\Closure\init;
+use function Opis\Closure\set_security_provider;
 
 class AsyncTaskTest extends BaseTestCase
 {
-    // directly running the runner 
+    public function setUp(): void
+    {
+        // we need to reset the security key in case some of our tests change the secret key
+        AsyncTask::loadSecretKey();
+    }
+
+    // directly running the runner
 
     public function testCanRunClosure()
     {
@@ -72,6 +81,42 @@ class AsyncTaskTest extends BaseTestCase
         $task = new AsyncTask(fn() => null);
         $task->withoutTimeLimit();
         $this->assertNull($task->getTimeLimit());
+    }
+
+    public function testCanVerifySender()
+    {
+        // test that, when given a serialized closure signed by us, we can correctly reproduce the closure
+        $testSecretKey = "LaravelProcAsync";
+        $testClosure = fn () => "Hello there!";
+        // reset the security provider
+        set_security_provider(null);
+        init($testSecretKey);
+        // serialize once
+        $testTask = new AsyncTask($testClosure);
+        $checkingString = $testTask->toBase64Serial();
+        // then unserialize it
+        $reproducedTask = AsyncTask::fromBase64Serial($checkingString);
+        $this->assertTrue($reproducedTask instanceof AsyncTask);
+    }
+
+    public function testCannotVerifySender()
+    {
+        // test that, when given a serialized closure signed by Mallory, we can correctly reject the closure
+        $testSecretKey = "LaravelProcAsync";
+        $testMalloryKey = "HereComesDatMallory";
+        $testClosure = fn () => "Hello there!";
+        // reset the security provider
+        // mallory appears!
+        set_security_provider($testMalloryKey);
+        // serialize once
+        $testTask = new AsyncTask($testClosure);
+        $checkingString = $testTask->toBase64Serial();
+        // then unserialize it
+        set_security_provider($testSecretKey);
+        $this->expectException(SecurityException::class);
+        // should throw
+        $reproducedTask = AsyncTask::fromBase64Serial($checkingString);
+        unset($reproducedTask);
     }
 
     // ---------
