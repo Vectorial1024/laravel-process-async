@@ -13,7 +13,10 @@ use LogicException;
 use loophp\phposinfo\OsInfo;
 use RuntimeException;
 
-use function Opis\Closure\{serialize, unserialize};
+use function Opis\Closure\init;
+use function Opis\Closure\serialize;
+use function Opis\Closure\set_security_provider;
+use function Opis\Closure\unserialize;
 
 /**
  * The common handler of an AsyncTask; this can be a closure (will be wrapped inside AsyncTask) or an interface instance.
@@ -147,6 +150,26 @@ class AsyncTask
     }
 
     /**
+     * Loads (or reloads) the secret key used by this library.
+     * 
+     * Normally, this function does not need to be called by linrary users.
+     * @return void
+     */
+    public static function loadSecretKey(): void
+    {
+        // read from the env file for the secret key (if exists) to verify our identity
+        $secretKey = env("PROCESS_ASYNC_SECRET_KEY");
+        init(null);
+        if ($secretKey != null && strlen($secretKey) > 0) {
+            // we can set the secret key
+            set_security_provider($secretKey);
+        } else {
+            // no secret key given, clear the security
+            set_security_provider(null);
+        }
+    }
+
+    /*
      * Returns a status object for the started AsyncTask.
      * 
      * If this task does not have an explicit task ID, a new one will be generated on-the-fly.

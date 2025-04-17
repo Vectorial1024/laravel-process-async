@@ -128,7 +128,6 @@ class AsyncTaskStatus
             // we can assume we are in cmd, but wcim in cmd is deprecated, and the replacement gcim requires powershell
             $results = [];
             $fullCmd = "powershell echo \"\"(gcim Win32_Process -Filter \\\"CommandLine LIKE '%id=\'$encodedTaskID\'%'\\\").ProcessId\"\"";
-            \Illuminate\Support\Facades\Log::info($fullCmd);
             exec("powershell echo \"\"(gcim Win32_Process -Filter \\\"CommandLine LIKE '%id=\'$encodedTaskID\'%'\\\").ProcessId\"\"", $results);
             // will output many lines, each line being a PID
             foreach ($results as $candidatePID) {
