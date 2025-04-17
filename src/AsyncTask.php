@@ -114,6 +114,21 @@ class AsyncTask
         $this->taskID = $taskID;
     }
 
+    /**
+     * Returns an instance of a fake AsyncTask with the same task parameters and task ID.
+     * @return FakeAsyncTask The fake AsyncTask object for testing.
+     */
+    public function fake(): FakeAsyncTask
+    {
+        $fakeTask = new FakeAsyncTask($this->theTask, taskID: $this->taskID);
+        if ($this->getTimeLimit() === null) {
+            $fakeTask->withoutTimeLimit();
+        } else {
+            $fakeTask->withTimeLimit($this->timeLimit);
+        }
+        return $fakeTask;
+    }
+
     public function __serialize(): array
     {
         // serialize only the necessary info to reduce runner cmd length
@@ -129,6 +144,18 @@ class AsyncTask
             'theTask' => $this->theTask,
             'timeLimit' => $this->timeLimit,
         ] = $data;
+    }
+
+    /**
+     * Returns a status object for the started AsyncTask.
+     * 
+     * If this task does not have an explicit task ID, a new one will be generated on-the-fly.
+     * @return AsyncTaskStatus The status object for the started AsyncTask.
+     */
+    protected function getTaskStatusObject(): AsyncTaskStatus 
+    {
+        $taskID = $this->taskID ?? Str::ulid()->toString();
+        return new AsyncTaskStatus($taskID);
     }
 
     /**
@@ -192,8 +219,7 @@ class AsyncTask
     public function start(): AsyncTaskStatus
     {
         // prepare the task details
-        $taskID = $this->taskID ?? Str::ulid()->toString();
-        $taskStatus = new AsyncTaskStatus($taskID);
+        $taskStatus = $this->getTaskStatusObject();
 
         // prepare the runner command
         $serializedTask = $this->toBase64Serial();
