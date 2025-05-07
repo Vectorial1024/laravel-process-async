@@ -3,6 +3,10 @@ Note: you may refer to `README.md` for description of features.
 
 ## Dev (WIP)
 - Compatibility with Laravel 12
+- Fake objects are available for writing tests with this library (https://github.com/Vectorial1024/laravel-process-async/issues/15)
+- Improved security for the task runners (https://github.com/Vectorial1024/laravel-process-async/issues/10), which includes:
+  - Task runner Artisan command hidden from the Artisan command list
+  - Configurable task details secret key
 
 ## 0.3.0 (2025-01-26)
 - Task IDs can be given to tasks (generated or not) (https://github.com/Vectorial1024/laravel-process-async/issues/5)
