@@ -129,6 +129,36 @@ You may need to clear your Laravel optimisation cache after changing this value.
 
 The contents of the async tasks will be signed by this secret key, so that this library can know whether the tasks are started by this library itself or someone else.
 
+### Fake Objects
+Fake objects are available for users to simulate async task behaviors without actually starting async tasks. This should be helpful when writing tests that attempts to react to task statuses.
+
+The following fake objects are available:
+
+- `FakeAsyncTask`: a fake of `AsyncTask`
+- `FakeAsyncTaskStatus`: a fake of `AsyncTaskStatus`
+
+Notably, they can be used like this:
+
+```php
+// you may obtain the task status in the usual way...
+$fakeTask = new FakeAsyncTask(/* ... */, taskID: "TestingTask");
+$fakeStatus = $fakeTask->start();
+
+// ...or just construct it directly
+$fakeStatusDirect = new FakeAsyncTaskStatus("TestingTask");
+// both are the same
+assert($fakeStatus == $fakeStatusDirect); // passes
+
+// in your test code, fake task status can be used just like the normal task status:
+$fakeStatus->isRunning(); // default returns true
+
+// note: FakeAsyncTaskStatus defaults to "is running" when constructed
+// to simulate "task ended", simply do:
+$fakeStatus->fakeStopRunning();
+// then, the following will return false
+$fakeStatus->isRunning(); // returns false
+```
+
 ## Testing
 PHPUnit via Composer script:
 ```sh
