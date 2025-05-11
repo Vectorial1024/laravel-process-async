@@ -2,6 +2,8 @@
 Note: you may refer to `README.md` for description of features.
 
 ## Dev (WIP)
+
+## 1.0.0 (2025-05-11)
 - Compatibility with Laravel 12
 - Fake objects are available for writing tests with this library (https://github.com/Vectorial1024/laravel-process-async/issues/15)
 - Improved security for the task runners (https://github.com/Vectorial1024/laravel-process-async/issues/10), which includes:
