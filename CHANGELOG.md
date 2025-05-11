@@ -1,7 +1,10 @@
 # Change Log of `laravel-process-async`
 Note: you may refer to `README.md` for description of features.
 
+This package follows semver.
+
 ## Dev (WIP)
+...
 
 ## 1.0.0 (2025-05-11)
 - Compatibility with Laravel 12
