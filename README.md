@@ -18,6 +18,8 @@ This library internally uses an Artisan command to run the async code, which is 
 ## Why should I want this?
 This library is very helpful for these cases:
 - You want a cross-platform minimal-setup async for easy vertical scaling
+  - `pthreads` is dead ([source](https://www.php.net/manual/en/intro.pthreads.php))
+  - `parallel` is general-purpose and does not have Laravel integration
 - You want to start quick-and-dirty async tasks right now (e.g. prefetching resources, pinging remote, etc.)
   - Best is if your task only has very few lines of code
 - Laravel 11 [Concurrency](https://laravel.com/docs/11.x/concurrency) is too limiting; e.g.:
